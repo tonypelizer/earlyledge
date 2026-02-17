@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
-import { Alert, Container, Grid, Stack } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 import { api, setAuthToken } from "./api";
 import { ActivitiesListCard } from "./components/ActivitiesListCard";
@@ -60,6 +70,7 @@ function App() {
   );
 
   const isEditingChild = editingChildId !== null;
+  const userLabel = email ? email.split("@")[0] : "Parent";
 
   const refreshChildData = useCallback(async (childId: number) => {
     const [dashboardRes, activityRes] = await Promise.all([
@@ -80,7 +91,6 @@ function App() {
       const loadedChildren = childrenRes.data as Child[];
       setChildren(loadedChildren);
       setSkills(skillsRes.data);
-
       if (loadedChildren.length > 0) {
         const firstChildId = loadedChildren[0].id;
         setSelectedChildId(firstChildId);
@@ -324,72 +334,97 @@ function App() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Stack spacing={3}>
-        <AppTopBar onLogout={() => setToken(null)} />
+    <Box sx={{ bgcolor: "#f7f8fb", minHeight: "100vh", py: 2 }}>
+      <Container maxWidth="xl" sx={{ py: 2 }}>
+        <Stack spacing={3}>
+          <AppTopBar userLabel={userLabel} onLogout={() => setToken(null)} />
 
-        {error && <Alert severity="error">{error}</Alert>}
+          {error && <Alert severity="error">{error}</Alert>}
 
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <ChildrenPanel
-              childrenList={children}
-              selectedChildId={selectedChildId}
-              childNameInput={childNameInput}
-              childDateOfBirthInput={childDateOfBirthInput}
-              isEditing={isEditingChild}
-              onSelectedChildChange={onSelectedChildChange}
-              onChildNameChange={setChildNameInput}
-              onChildDateOfBirthChange={setChildDateOfBirthInput}
-              onAddChild={addChild}
-              onStartEditChild={startEditChild}
-              onUpdateChild={updateChild}
-              onCancelEdit={cancelEditChild}
-              onDeleteChild={deleteChild}
-            />
+          <Typography variant="h4" fontWeight={700} sx={{ px: { xs: 0, md: 1 } }}>
+            Welcome{selectedChild ? `, ${selectedChild.name}` : ""}!
+          </Typography>
+
+          <Grid container spacing={2.5} alignItems="flex-start">
+            <Grid size={{ xs: 12, lg: 8 }}>
+              <Stack spacing={2.5}>
+                {selectedChild && dashboard && (
+                  <WeeklyDashboardSection
+                    childName={selectedChild.name}
+                    dashboard={dashboard}
+                  />
+                )}
+
+                <ActivityFormCard
+                  title={title}
+                  notes={notes}
+                  durationMinutes={durationMinutes}
+                  activityDate={activityDate}
+                  selectedSkillIds={selectedSkillIds}
+                  skills={skills}
+                  onTitleChange={setTitle}
+                  onNotesChange={setNotes}
+                  onDurationChange={setDurationMinutes}
+                  onActivityDateChange={setActivityDate}
+                  onSkillToggle={onSkillToggle}
+                  onSaveActivity={addActivity}
+                />
+
+                <ActivitiesListCard activities={activities} />
+
+                <SuggestionsCard suggestions={suggestions} />
+              </Stack>
+            </Grid>
+
+            <Grid size={{ xs: 12, lg: 4 }}>
+              <Stack spacing={2.5}>
+                <ChildrenPanel
+                  childrenList={children}
+                  selectedChildId={selectedChildId}
+                  childNameInput={childNameInput}
+                  childDateOfBirthInput={childDateOfBirthInput}
+                  isEditing={isEditingChild}
+                  onSelectedChildChange={onSelectedChildChange}
+                  onChildNameChange={setChildNameInput}
+                  onChildDateOfBirthChange={setChildDateOfBirthInput}
+                  onAddChild={addChild}
+                  onStartEditChild={startEditChild}
+                  onUpdateChild={updateChild}
+                  onCancelEdit={cancelEditChild}
+                  onDeleteChild={deleteChild}
+                />
+
+                <Card sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                      Weekly Reflections
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ mb: 2 }}>
+                      What was a highlight of your child&apos;s learning this week?
+                    </Typography>
+                    <Button fullWidth variant="contained">
+                      Write a Note
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <GentleNudgesCard
+                  missingSkills={dashboard?.missing_skills ?? []}
+                  onSeeIdeas={getSuggestions}
+                />
+
+                <MonthlySnapshotCard
+                  month={month}
+                  disabled={!selectedChildId}
+                  onMonthChange={setMonth}
+                  onGenerate={downloadSnapshot}
+                />
+              </Stack>
+            </Grid>
           </Grid>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <ActivityFormCard
-              title={title}
-              notes={notes}
-              durationMinutes={durationMinutes}
-              activityDate={activityDate}
-              selectedSkillIds={selectedSkillIds}
-              skills={skills}
-              onTitleChange={setTitle}
-              onNotesChange={setNotes}
-              onDurationChange={setDurationMinutes}
-              onActivityDateChange={setActivityDate}
-              onSkillToggle={onSkillToggle}
-              onSaveActivity={addActivity}
-            />
-          </Grid>
-        </Grid>
-
-        {selectedChild && dashboard && (
-          <WeeklyDashboardSection
-            childName={selectedChild.name}
-            dashboard={dashboard}
-          />
-        )}
-
-        <GentleNudgesCard
-          missingSkills={dashboard?.missing_skills ?? []}
-          onSeeIdeas={getSuggestions}
-        />
-
-        <SuggestionsCard suggestions={suggestions} />
-
-        <MonthlySnapshotCard
-          month={month}
-          disabled={!selectedChildId}
-          onMonthChange={setMonth}
-          onGenerate={downloadSnapshot}
-        />
-
-        <ActivitiesListCard activities={activities} />
-      </Stack>
-    </Container>
+        </Stack>
+      </Container>
+    </Box>
   );
 }
 

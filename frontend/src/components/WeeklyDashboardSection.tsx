@@ -2,21 +2,11 @@ import {
   Box,
   Card,
   CardContent,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
+  Divider,
   Stack,
   Typography,
 } from "@mui/material";
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import type { WeeklyDashboard } from "../types";
 
@@ -29,62 +19,116 @@ export function WeeklyDashboardSection({
   childName,
   dashboard,
 }: WeeklyDashboardSectionProps) {
-  return (
-    <Grid container spacing={2}>
-      <Grid size={{ xs: 12, md: 7 }}>
-        <Card>
-          <CardContent>
-            <Stack spacing={2}>
-              <Typography variant="h6">
-                Weekly dashboard for {childName}
-              </Typography>
-              <Typography color="text.secondary">
-                Activities this week: {dashboard.activity_count}
-              </Typography>
-              <Box sx={{ width: "100%", minWidth: 0 }}>
-                <ResponsiveContainer
-                  width="100%"
-                  height={260}
-                  minWidth={0}
-                  minHeight={0}
-                >
-                  <BarChart data={dashboard.skill_counts}>
-                    <XAxis
-                      dataKey="skill"
-                      angle={-20}
-                      textAnchor="end"
-                      height={70}
-                    />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#5b7f67" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Grid>
+  const totalMinutes = dashboard.recent_activities.reduce(
+    (sum, activity) => sum + (activity.duration_minutes ?? 0),
+    0,
+  );
 
-      <Grid size={{ xs: 12, md: 5 }}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Recent activities
+  const palette = ["#58a9e0", "#67b587", "#f2bf52", "#f08452", "#8c7ad9"];
+
+  return (
+    <Card
+      sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}
+    >
+      <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+        <Stack spacing={2}>
+          <Box>
+            <Typography variant="h6" fontWeight={700}>
+              This Week&apos;s Learning Snapshot
             </Typography>
-            <List dense>
-              {dashboard.recent_activities.slice(0, 6).map((activity) => (
-                <ListItem key={activity.id} disablePadding>
-                  <ListItemText
-                    primary={activity.title}
-                    secondary={`${activity.activity_date} • ${activity.skills.join(", ") || "Unmapped"}`}
+            <Typography color="primary" variant="body2" fontWeight={600}>
+              For {childName}
+            </Typography>
+          </Box>
+
+          <Divider />
+
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={2}
+            alignItems="stretch"
+          >
+            <Box sx={{ width: { xs: "100%", md: 300 }, minWidth: 0 }}>
+              <ResponsiveContainer
+                width="100%"
+                height={220}
+                minWidth={0}
+                minHeight={0}
+              >
+                <PieChart>
+                  <Pie
+                    data={dashboard.skill_counts}
+                    dataKey="count"
+                    nameKey="skill"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={92}
+                    stroke="none"
+                  >
+                    {dashboard.skill_counts.map((entry, index) => (
+                      <Cell
+                        key={`${entry.skill}-${entry.skill_id}`}
+                        fill={palette[index % palette.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </Box>
+
+            <Stack
+              spacing={1}
+              flex={1}
+              justifyContent="center"
+              sx={{ minWidth: 180 }}
+            >
+              {dashboard.skill_counts.map((entry, index) => (
+                <Stack
+                  key={entry.skill_id}
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                >
+                  <Box
+                    sx={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      bgcolor: palette[index % palette.length],
+                    }}
                   />
-                </ListItem>
+                  <Typography variant="body2">{entry.skill}</Typography>
+                </Stack>
               ))}
-            </List>
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+            </Stack>
+
+            <Stack
+              spacing={1.5}
+              sx={{
+                width: { xs: "100%", md: 220 },
+                pl: { md: 2 },
+                borderLeft: { md: "1px solid" },
+                borderColor: "divider",
+              }}
+              justifyContent="center"
+            >
+              <Typography variant="h4" fontWeight={700} lineHeight={1}>
+                {dashboard.activity_count}
+              </Typography>
+              <Typography color="text.secondary" fontWeight={600}>
+                Activities Logged
+              </Typography>
+              <Typography variant="h4" fontWeight={700} lineHeight={1}>
+                {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
+              </Typography>
+              <Typography color="text.secondary" fontWeight={600}>
+                Total Learning Time
+              </Typography>
+            </Stack>
+          </Stack>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 }

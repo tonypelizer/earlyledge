@@ -43,10 +43,12 @@ export function ActivityFormCard({
   onSaveActivity,
 }: ActivityFormCardProps) {
   return (
-    <Card>
+    <Card
+      sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}
+    >
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="h6">Log activity</Typography>
+          <Typography variant="h6">Add an Activity</Typography>
           <TextField
             label="Title"
             value={title}

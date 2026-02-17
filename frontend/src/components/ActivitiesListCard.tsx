@@ -1,6 +1,8 @@
 import {
+  Box,
   Card,
   CardContent,
+  Divider,
   List,
   ListItem,
   ListItemText,
@@ -15,21 +17,38 @@ type ActivitiesListCardProps = {
 
 export function ActivitiesListCard({ activities }: ActivitiesListCardProps) {
   return (
-    <Card>
-      <CardContent>
+    <Card
+      sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}
+    >
+      <CardContent sx={{ p: { xs: 2, md: 3 } }}>
         <Typography variant="h6" sx={{ mb: 1 }}>
-          All logged activities
+          Recent Activities
         </Typography>
-        <List>
-          {activities.slice(0, 12).map((activity) => (
-            <ListItem key={activity.id}>
-              <ListItemText
-                primary={activity.title}
-                secondary={`${activity.activity_date} • ${activity.skills.map((skill) => skill.name).join(", ") || "Unmapped"}`}
-              />
-            </ListItem>
+        <List sx={{ p: 0 }}>
+          {activities.slice(0, 6).map((activity, index) => (
+            <Box key={activity.id}>
+              <ListItem disableGutters sx={{ py: 1.2 }}>
+                <ListItemText
+                  primary={activity.title}
+                  secondary={`${activity.skills.map((skill) => skill.name).join(", ") || "Unmapped"} • ${activity.duration_minutes ?? 0} min • ${activity.activity_date}`}
+                  slotProps={{
+                    primary: { fontWeight: 600 },
+                    secondary: { color: "text.secondary" },
+                  }}
+                />
+              </ListItem>
+              {index < Math.min(activities.length, 6) - 1 && <Divider />}
+            </Box>
           ))}
         </List>
+        <Typography
+          variant="body2"
+          color="primary"
+          fontWeight={600}
+          sx={{ mt: 1, textAlign: "right" }}
+        >
+          View all activities ›
+        </Typography>
       </CardContent>
     </Card>
   );
