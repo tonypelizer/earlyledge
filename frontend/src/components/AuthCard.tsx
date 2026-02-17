@@ -10,6 +10,8 @@ import {
   Typography,
 } from "@mui/material";
 
+import logoUrl from "../assets/logo.png";
+
 type AuthMode = "login" | "signup";
 
 type AuthCardProps = {
@@ -50,7 +52,16 @@ export function AuthCard({
               onSubmit();
             }}
           >
-            <Typography variant="h4">EarlyLedge</Typography>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <img
+                src={logoUrl}
+                alt="EarlyLedge"
+                style={{ height: 44, width: "auto", display: "block" }}
+              />
+              <Typography variant="h4" component="h1">
+                EarlyLedge
+              </Typography>
+            </Stack>
             <Typography color="text.secondary">
               A calm way to make everyday learning visible.
             </Typography>
