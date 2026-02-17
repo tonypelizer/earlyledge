@@ -41,8 +41,13 @@ export function WeeklyDashboardSection({
               <Typography color="text.secondary">
                 Activities this week: {dashboard.activity_count}
               </Typography>
-              <Box sx={{ width: "100%", height: 260 }}>
-                <ResponsiveContainer>
+              <Box sx={{ width: "100%", minWidth: 0 }}>
+                <ResponsiveContainer
+                  width="100%"
+                  height={260}
+                  minWidth={0}
+                  minHeight={0}
+                >
                   <BarChart data={dashboard.skill_counts}>
                     <XAxis
                       dataKey="skill"
