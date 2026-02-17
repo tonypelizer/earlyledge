@@ -22,6 +22,7 @@ import { GentleNudgesCard } from "./components/GentleNudgesCard";
 import { MonthlySnapshotCard } from "./components/MonthlySnapshotCard";
 import { SuggestionsCard } from "./components/SuggestionsCard";
 import { WeeklyDashboardSection } from "./components/WeeklyDashboardSection";
+import { SuggestionsPage } from "./pages/SuggestionsPage";
 import type {
   Activity,
   Child,
@@ -31,8 +32,10 @@ import type {
 } from "./types";
 
 type AuthMode = "login" | "signup";
+type PageType = "home" | "suggestions" | "reports";
 
 function App() {
+  const [currentPage, setCurrentPage] = useState<PageType>("home");
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -335,118 +338,135 @@ function App() {
 
   return (
     <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh" }}>
-      <AppTopBar userLabel={userLabel} onLogout={() => setToken(null)} />
+      <AppTopBar
+        userLabel={userLabel}
+        currentPage={currentPage}
+        onNavigate={(page) => setCurrentPage(page as PageType)}
+        onLogout={() => setToken(null)}
+      />
 
-      <Container maxWidth="xl">
-        <Box sx={{ px: 3, py: 3 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+      {currentPage === "suggestions" ? (
+        <SuggestionsPage />
+      ) : currentPage === "reports" ? (
+        <Container maxWidth="xl">
+          <Box sx={{ px: 3, py: 3 }}>
+            <Typography variant="h4" fontWeight={700} color="#2d3748">
+              Reports (Coming Soon)
+            </Typography>
+          </Box>
+        </Container>
+      ) : (
+        <Container maxWidth="xl">
+          <Box sx={{ px: 3, py: 3 }}>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
 
-          <Typography
-            variant="h4"
-            fontWeight={700}
-            color="#2d3748"
-            sx={{ mb: 3 }}
-          >
-            Welcome{selectedChild ? `, ${selectedChild.name}` : ""}!
-          </Typography>
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              color="#2d3748"
+              sx={{ mb: 3 }}
+            >
+              Welcome{selectedChild ? `, ${selectedChild.name}` : ""}!
+            </Typography>
 
-          <Grid container spacing={3} alignItems="flex-start">
-            <Grid size={{ xs: 12, lg: 8 }}>
-              <Stack spacing={3}>
-                {selectedChild && dashboard && (
-                  <WeeklyDashboardSection
-                    childName={selectedChild.name}
-                    dashboard={dashboard}
+            <Grid container spacing={3} alignItems="flex-start">
+              <Grid size={{ xs: 12, lg: 8 }}>
+                <Stack spacing={3}>
+                  {selectedChild && dashboard && (
+                    <WeeklyDashboardSection
+                      childName={selectedChild.name}
+                      dashboard={dashboard}
+                    />
+                  )}
+
+                  <ActivityFormCard
+                    title={title}
+                    notes={notes}
+                    durationMinutes={durationMinutes}
+                    activityDate={activityDate}
+                    selectedSkillIds={selectedSkillIds}
+                    skills={skills}
+                    onTitleChange={setTitle}
+                    onNotesChange={setNotes}
+                    onDurationChange={setDurationMinutes}
+                    onActivityDateChange={setActivityDate}
+                    onSkillToggle={onSkillToggle}
+                    onSaveActivity={addActivity}
                   />
-                )}
 
-                <ActivityFormCard
-                  title={title}
-                  notes={notes}
-                  durationMinutes={durationMinutes}
-                  activityDate={activityDate}
-                  selectedSkillIds={selectedSkillIds}
-                  skills={skills}
-                  onTitleChange={setTitle}
-                  onNotesChange={setNotes}
-                  onDurationChange={setDurationMinutes}
-                  onActivityDateChange={setActivityDate}
-                  onSkillToggle={onSkillToggle}
-                  onSaveActivity={addActivity}
-                />
+                  <ActivitiesListCard activities={activities} />
 
-                <ActivitiesListCard activities={activities} />
+                  <SuggestionsCard suggestions={suggestions} />
+                </Stack>
+              </Grid>
 
-                <SuggestionsCard suggestions={suggestions} />
-              </Stack>
+              <Grid size={{ xs: 12, lg: 4 }}>
+                <Stack spacing={3}>
+                  <ChildrenPanel
+                    childrenList={children}
+                    selectedChildId={selectedChildId}
+                    childNameInput={childNameInput}
+                    childDateOfBirthInput={childDateOfBirthInput}
+                    isEditing={isEditingChild}
+                    onSelectedChildChange={onSelectedChildChange}
+                    onChildNameChange={setChildNameInput}
+                    onChildDateOfBirthChange={setChildDateOfBirthInput}
+                    onAddChild={addChild}
+                    onStartEditChild={startEditChild}
+                    onUpdateChild={updateChild}
+                    onCancelEdit={cancelEditChild}
+                    onDeleteChild={deleteChild}
+                  />
+
+                  <Card sx={{ borderRadius: 2 }}>
+                    <CardContent sx={{ p: 3 }}>
+                      <Typography
+                        variant="h6"
+                        fontWeight={700}
+                        color="#2d3748"
+                        sx={{ mb: 1.5 }}
+                      >
+                        Weekly Reflections
+                      </Typography>
+                      <Typography
+                        color="text.secondary"
+                        fontSize="0.875rem"
+                        sx={{ mb: 2 }}
+                      >
+                        What was a highlight of your child&apos;s learning this
+                        week?
+                      </Typography>
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        sx={{ py: 1.25, fontWeight: 600 }}
+                      >
+                        Write a Note
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <GentleNudgesCard
+                    missingSkills={dashboard?.missing_skills ?? []}
+                    onSeeIdeas={getSuggestions}
+                  />
+
+                  <MonthlySnapshotCard
+                    month={month}
+                    disabled={!selectedChildId}
+                    onMonthChange={setMonth}
+                    onGenerate={downloadSnapshot}
+                  />
+                </Stack>
+              </Grid>
             </Grid>
-
-            <Grid size={{ xs: 12, lg: 4 }}>
-              <Stack spacing={3}>
-                <ChildrenPanel
-                  childrenList={children}
-                  selectedChildId={selectedChildId}
-                  childNameInput={childNameInput}
-                  childDateOfBirthInput={childDateOfBirthInput}
-                  isEditing={isEditingChild}
-                  onSelectedChildChange={onSelectedChildChange}
-                  onChildNameChange={setChildNameInput}
-                  onChildDateOfBirthChange={setChildDateOfBirthInput}
-                  onAddChild={addChild}
-                  onStartEditChild={startEditChild}
-                  onUpdateChild={updateChild}
-                  onCancelEdit={cancelEditChild}
-                  onDeleteChild={deleteChild}
-                />
-
-                <Card sx={{ borderRadius: 2 }}>
-                  <CardContent sx={{ p: 3 }}>
-                    <Typography
-                      variant="h6"
-                      fontWeight={700}
-                      color="#2d3748"
-                      sx={{ mb: 1.5 }}
-                    >
-                      Weekly Reflections
-                    </Typography>
-                    <Typography
-                      color="text.secondary"
-                      fontSize="0.875rem"
-                      sx={{ mb: 2 }}
-                    >
-                      What was a highlight of your child&apos;s learning this
-                      week?
-                    </Typography>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      sx={{ py: 1.25, fontWeight: 600 }}
-                    >
-                      Write a Note
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <GentleNudgesCard
-                  missingSkills={dashboard?.missing_skills ?? []}
-                  onSeeIdeas={getSuggestions}
-                />
-
-                <MonthlySnapshotCard
-                  month={month}
-                  disabled={!selectedChildId}
-                  onMonthChange={setMonth}
-                  onGenerate={downloadSnapshot}
-                />
-              </Stack>
-            </Grid>
-          </Grid>
-        </Box>
-      </Container>
+          </Box>
+        </Container>
+      )}
     </Box>
   );
 }

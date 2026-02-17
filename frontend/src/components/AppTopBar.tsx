@@ -17,10 +17,17 @@ import logoUrl from "../assets/logo.png";
 
 type AppTopBarProps = {
   userLabel: string;
+  currentPage?: string;
+  onNavigate?: (page: string) => void;
   onLogout: () => void;
 };
 
-export function AppTopBar({ userLabel, onLogout }: AppTopBarProps) {
+export function AppTopBar({
+  userLabel,
+  currentPage = "home",
+  onNavigate,
+  onLogout,
+}: AppTopBarProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -35,6 +42,11 @@ export function AppTopBar({ userLabel, onLogout }: AppTopBarProps) {
   const handleLogout = () => {
     handleClose();
     onLogout();
+  };
+
+  const handleNavClick = (page: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    onNavigate?.(page);
   };
 
   return (
@@ -76,32 +88,57 @@ export function AppTopBar({ userLabel, onLogout }: AppTopBarProps) {
           >
             <Link
               href="#"
-              underline="always"
-              color="primary"
-              fontWeight={600}
+              onClick={handleNavClick("home")}
+              underline={currentPage === "home" ? "always" : "none"}
+              color={currentPage === "home" ? "primary" : "text.secondary"}
+              fontWeight={currentPage === "home" ? 600 : 500}
               fontSize="0.9375rem"
-              sx={{
-                textDecorationThickness: "2.5px",
-                textUnderlineOffset: "6px",
-              }}
+              sx={
+                currentPage === "home"
+                  ? {
+                      textDecorationThickness: "2.5px",
+                      textUnderlineOffset: "6px",
+                    }
+                  : undefined
+              }
             >
               Home
             </Link>
             <Link
               href="#"
-              underline="none"
-              color="text.secondary"
-              fontWeight={500}
+              onClick={handleNavClick("suggestions")}
+              underline={currentPage === "suggestions" ? "always" : "none"}
+              color={
+                currentPage === "suggestions" ? "primary" : "text.secondary"
+              }
+              fontWeight={currentPage === "suggestions" ? 600 : 500}
               fontSize="0.9375rem"
+              sx={
+                currentPage === "suggestions"
+                  ? {
+                      textDecorationThickness: "2.5px",
+                      textUnderlineOffset: "6px",
+                    }
+                  : undefined
+              }
             >
               Suggestions
             </Link>
             <Link
               href="#"
-              underline="none"
-              color="text.secondary"
-              fontWeight={500}
+              onClick={handleNavClick("reports")}
+              underline={currentPage === "reports" ? "always" : "none"}
+              color={currentPage === "reports" ? "primary" : "text.secondary"}
+              fontWeight={currentPage === "reports" ? 600 : 500}
               fontSize="0.9375rem"
+              sx={
+                currentPage === "reports"
+                  ? {
+                      textDecorationThickness: "2.5px",
+                      textUnderlineOffset: "6px",
+                    }
+                  : undefined
+              }
             >
               Reports
             </Link>
