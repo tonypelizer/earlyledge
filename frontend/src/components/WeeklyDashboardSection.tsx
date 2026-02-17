@@ -24,6 +24,20 @@ export function WeeklyDashboardSection({
     0,
   );
 
+  // Calculate current week date range (Sunday to Saturday)
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - dayOfWeek);
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  };
+
+  const dateRange = `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
+
   const palette = ["#58a9e0", "#67b587", "#f2bf52", "#f08452", "#8c7ad9"];
 
   return (
@@ -40,7 +54,7 @@ export function WeeklyDashboardSection({
               This Week&apos;s Learning Snapshot
             </Typography>
             <Typography color="primary" variant="body2" fontWeight={500}>
-              April 15 - April 21
+              {dateRange}
             </Typography>
           </Box>
 
