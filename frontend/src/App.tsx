@@ -1,34 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  CircularProgress,
-  Container,
-  FormControlLabel,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-  MenuItem,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Alert, Container, Grid, Stack } from "@mui/material";
 
 import { api, setAuthToken } from "./api";
+import { ActivitiesListCard } from "./components/ActivitiesListCard";
+import { ActivityFormCard } from "./components/ActivityFormCard";
+import { AppTopBar } from "./components/AppTopBar";
+import { AuthCard } from "./components/AuthCard";
+import { ChildrenPanel } from "./components/ChildrenPanel";
+import { GentleNudgesCard } from "./components/GentleNudgesCard";
+import { MonthlySnapshotCard } from "./components/MonthlySnapshotCard";
+import { SuggestionsCard } from "./components/SuggestionsCard";
+import { WeeklyDashboardSection } from "./components/WeeklyDashboardSection";
 import type {
   Activity,
   Child,
@@ -70,6 +53,42 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const selectedChild = useMemo(
+    () => children.find((child) => child.id === selectedChildId),
+    [children, selectedChildId],
+  );
+
+  const refreshChildData = useCallback(async (childId: number) => {
+    const [dashboardRes, activityRes] = await Promise.all([
+      api.get(`/dashboard/weekly/?child_id=${childId}`),
+      api.get(`/activities/?child_id=${childId}`),
+    ]);
+    setDashboard(dashboardRes.data);
+    setActivities(activityRes.data);
+    setSuggestions([]);
+  }, []);
+
+  const bootstrap = useCallback(async () => {
+    try {
+      const [childrenRes, skillsRes] = await Promise.all([
+        api.get("/children/"),
+        api.get("/skills/"),
+      ]);
+      const loadedChildren = childrenRes.data as Child[];
+      setChildren(loadedChildren);
+      setSkills(skillsRes.data);
+
+      if (loadedChildren.length > 0) {
+        const firstChildId = loadedChildren[0].id;
+        setSelectedChildId(firstChildId);
+        await refreshChildData(firstChildId);
+      }
+    } catch {
+      setError("Unable to load your data. Please log in again.");
+      setToken(null);
+    }
+  }, [refreshChildData]);
+
   useEffect(() => {
     setAuthToken(token);
     if (token) {
@@ -78,41 +97,7 @@ function App() {
     } else {
       localStorage.removeItem("token");
     }
-  }, [token]);
-
-  const selectedChild = useMemo(
-    () => children.find((child) => child.id === selectedChildId),
-    [children, selectedChildId],
-  );
-
-  const bootstrap = async () => {
-    try {
-      const [childrenRes, skillsRes] = await Promise.all([
-        api.get("/children/"),
-        api.get("/skills/"),
-      ]);
-      setChildren(childrenRes.data);
-      setSkills(skillsRes.data);
-      if (childrenRes.data.length > 0) {
-        const id = childrenRes.data[0].id;
-        setSelectedChildId(id);
-        await refreshChildData(id);
-      }
-    } catch {
-      setError("Unable to load your data. Please log in again.");
-      setToken(null);
-    }
-  };
-
-  const refreshChildData = async (childId: number) => {
-    const [dashboardRes, activityRes] = await Promise.all([
-      api.get(`/dashboard/weekly/?child_id=${childId}`),
-      api.get(`/activities/?child_id=${childId}`),
-    ]);
-    setDashboard(dashboardRes.data);
-    setActivities(activityRes.data);
-    setSuggestions([]);
-  };
+  }, [token, bootstrap]);
 
   const onAuth = async () => {
     setError("");
@@ -131,28 +116,50 @@ function App() {
   };
 
   const addChild = async () => {
-    if (!newChildName || !newChildAge) return;
+    if (!newChildName || !newChildAge) {
+      return;
+    }
+
     setError("");
     try {
       const response = await api.post("/children/", {
         name: newChildName,
         age: Number(newChildAge),
       });
-      const updated = [...children, response.data as Child];
-      setChildren(updated);
+
+      const createdChild = response.data as Child;
+      setChildren((previous) => [...previous, createdChild]);
       setNewChildName("");
       setNewChildAge("");
+
       if (!selectedChildId) {
-        setSelectedChildId(response.data.id);
-        await refreshChildData(response.data.id);
+        setSelectedChildId(createdChild.id);
+        await refreshChildData(createdChild.id);
       }
     } catch {
       setError("Could not add child.");
     }
   };
 
+  const onSelectedChildChange = async (childId: number) => {
+    setSelectedChildId(childId);
+    await refreshChildData(childId);
+  };
+
+  const onSkillToggle = (skillId: number, isSelected: boolean) => {
+    setSelectedSkillIds((previous) => {
+      if (isSelected) {
+        return [...previous, skillId];
+      }
+      return previous.filter((id) => id !== skillId);
+    });
+  };
+
   const addActivity = async () => {
-    if (!selectedChildId || !title) return;
+    if (!selectedChildId || !title) {
+      return;
+    }
+
     setError("");
     try {
       await api.post("/activities/", {
@@ -163,10 +170,12 @@ function App() {
         activity_date: activityDate,
         skill_ids: selectedSkillIds,
       });
+
       setTitle("");
       setNotes("");
       setDurationMinutes("");
       setSelectedSkillIds([]);
+
       await refreshChildData(Number(selectedChildId));
     } catch {
       setError("Could not save activity.");
@@ -174,9 +183,15 @@ function App() {
   };
 
   const getSuggestions = async (skillName: string) => {
-    if (!selectedChildId) return;
+    if (!selectedChildId) {
+      return;
+    }
+
     const skill = skills.find((entry) => entry.name === skillName);
-    if (!skill) return;
+    if (!skill) {
+      return;
+    }
+
     try {
       const response = await api.get(
         `/suggestions/?skill_id=${skill.id}&child_id=${selectedChildId}`,
@@ -188,7 +203,10 @@ function App() {
   };
 
   const downloadSnapshot = async () => {
-    if (!selectedChildId) return;
+    if (!selectedChildId) {
+      return;
+    }
+
     try {
       const response = await api.get(
         `/reports/monthly/?child_id=${selectedChildId}&month=${month}`,
@@ -205,329 +223,82 @@ function App() {
 
   if (!token) {
     return (
-      <Container maxWidth="sm" sx={{ py: 8 }}>
-        <Card>
-          <CardContent>
-            <Stack spacing={2}>
-              <Typography variant="h4">EarlyLedge</Typography>
-              <Typography color="text.secondary">
-                A calm way to make everyday learning visible.
-              </Typography>
-              {error && <Alert severity="error">{error}</Alert>}
-              <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <TextField
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Button variant="contained" onClick={onAuth} disabled={loading}>
-                {loading ? (
-                  <CircularProgress size={20} />
-                ) : mode === "login" ? (
-                  "Log in"
-                ) : (
-                  "Create account"
-                )}
-              </Button>
-              <Button
-                onClick={() => setMode(mode === "login" ? "signup" : "login")}
-              >
-                {mode === "login"
-                  ? "Need an account? Sign up"
-                  : "Already have an account? Log in"}
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Container>
+      <AuthCard
+        mode={mode}
+        email={email}
+        password={password}
+        loading={loading}
+        error={error}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        onSubmit={onAuth}
+        onToggleMode={() =>
+          setMode((previous) => (previous === "login" ? "signup" : "login"))
+        }
+      />
     );
   }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Stack spacing={3}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h4">EarlyLedge</Typography>
-          <Button variant="outlined" onClick={() => setToken(null)}>
-            Log out
-          </Button>
-        </Stack>
+        <AppTopBar onLogout={() => setToken(null)} />
 
         {error && <Alert severity="error">{error}</Alert>}
 
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Card>
-              <CardContent>
-                <Stack spacing={2}>
-                  <Typography variant="h6">Children</Typography>
-                  <TextField
-                    select
-                    label="Selected child"
-                    value={selectedChildId}
-                    onChange={async (e) => {
-                      const childId = Number(e.target.value);
-                      setSelectedChildId(childId);
-                      await refreshChildData(childId);
-                    }}
-                  >
-                    {children.map((child) => (
-                      <MenuItem key={child.id} value={child.id}>
-                        {child.name} ({child.age})
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  <TextField
-                    label="Child name"
-                    value={newChildName}
-                    onChange={(e) => setNewChildName(e.target.value)}
-                  />
-                  <TextField
-                    label="Age"
-                    type="number"
-                    value={newChildAge}
-                    onChange={(e) => setNewChildAge(Number(e.target.value))}
-                  />
-                  <Button variant="contained" onClick={addChild}>
-                    Add child
-                  </Button>
-                </Stack>
-              </CardContent>
-            </Card>
+            <ChildrenPanel
+              childrenList={children}
+              selectedChildId={selectedChildId}
+              newChildName={newChildName}
+              newChildAge={newChildAge}
+              onSelectedChildChange={onSelectedChildChange}
+              onNewChildNameChange={setNewChildName}
+              onNewChildAgeChange={setNewChildAge}
+              onAddChild={addChild}
+            />
           </Grid>
-
           <Grid size={{ xs: 12, md: 8 }}>
-            <Card>
-              <CardContent>
-                <Stack spacing={2}>
-                  <Typography variant="h6">Log activity</Typography>
-                  <TextField
-                    label="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                  />
-                  <TextField
-                    label="Notes"
-                    multiline
-                    minRows={2}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                  />
-                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                    <TextField
-                      label="Duration (minutes)"
-                      type="number"
-                      value={durationMinutes}
-                      onChange={(e) =>
-                        setDurationMinutes(Number(e.target.value))
-                      }
-                    />
-                    <TextField
-                      label="Date"
-                      type="date"
-                      value={activityDate}
-                      onChange={(e) => setActivityDate(e.target.value)}
-                      slotProps={{ inputLabel: { shrink: true } }}
-                    />
-                  </Stack>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                      Manual skill override (optional)
-                    </Typography>
-                    <Grid container spacing={1}>
-                      {skills.map((skill) => (
-                        <Grid key={skill.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={selectedSkillIds.includes(skill.id)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedSkillIds([
-                                      ...selectedSkillIds,
-                                      skill.id,
-                                    ]);
-                                  } else {
-                                    setSelectedSkillIds(
-                                      selectedSkillIds.filter(
-                                        (id) => id !== skill.id,
-                                      ),
-                                    );
-                                  }
-                                }}
-                              />
-                            }
-                            label={skill.name}
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </Box>
-                  <Button variant="contained" onClick={addActivity}>
-                    Save activity
-                  </Button>
-                </Stack>
-              </CardContent>
-            </Card>
+            <ActivityFormCard
+              title={title}
+              notes={notes}
+              durationMinutes={durationMinutes}
+              activityDate={activityDate}
+              selectedSkillIds={selectedSkillIds}
+              skills={skills}
+              onTitleChange={setTitle}
+              onNotesChange={setNotes}
+              onDurationChange={setDurationMinutes}
+              onActivityDateChange={setActivityDate}
+              onSkillToggle={onSkillToggle}
+              onSaveActivity={addActivity}
+            />
           </Grid>
         </Grid>
 
         {selectedChild && dashboard && (
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Card>
-                <CardContent>
-                  <Stack spacing={2}>
-                    <Typography variant="h6">
-                      Weekly dashboard for {selectedChild.name}
-                    </Typography>
-                    <Typography color="text.secondary">
-                      Activities this week: {dashboard.activity_count}
-                    </Typography>
-                    <Box sx={{ width: "100%", height: 260 }}>
-                      <ResponsiveContainer>
-                        <BarChart data={dashboard.skill_counts}>
-                          <XAxis
-                            dataKey="skill"
-                            angle={-20}
-                            textAnchor="end"
-                            height={70}
-                          />
-                          <YAxis allowDecimals={false} />
-                          <Tooltip />
-                          <Bar
-                            dataKey="count"
-                            fill="#5b7f67"
-                            radius={[6, 6, 0, 0]}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 5 }}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
-                    Recent activities
-                  </Typography>
-                  <List dense>
-                    {dashboard.recent_activities.slice(0, 6).map((activity) => (
-                      <ListItem key={activity.id} disablePadding>
-                        <ListItemText
-                          primary={activity.title}
-                          secondary={`${activity.activity_date} • ${activity.skills.join(", ") || "Unmapped"}`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+          <WeeklyDashboardSection
+            childName={selectedChild.name}
+            dashboard={dashboard}
+          />
         )}
 
-        {dashboard && dashboard.missing_skills.length > 0 && (
-          <Card>
-            <CardContent>
-              <Stack spacing={1}>
-                <Typography variant="h6">Gentle nudges</Typography>
-                {dashboard.missing_skills.map((skillName) => (
-                  <Alert
-                    key={skillName}
-                    severity="info"
-                    action={
-                      <Button onClick={() => getSuggestions(skillName)}>
-                        See ideas
-                      </Button>
-                    }
-                  >
-                    It&apos;s been a while since {skillName} showed up. Would
-                    you like a simple idea?
-                  </Alert>
-                ))}
-              </Stack>
-            </CardContent>
-          </Card>
-        )}
+        <GentleNudgesCard
+          missingSkills={dashboard?.missing_skills ?? []}
+          onSeeIdeas={getSuggestions}
+        />
 
-        {suggestions.length > 0 && (
-          <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Suggestions
-              </Typography>
-              <List>
-                {suggestions.map((suggestion) => (
-                  <ListItem key={suggestion.id}>
-                    <ListItemText
-                      primary={`${suggestion.title} (${suggestion.skill_name})`}
-                      secondary={suggestion.description}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-        )}
+        <SuggestionsCard suggestions={suggestions} />
 
-        <Card>
-          <CardContent>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              alignItems={{ sm: "center" }}
-            >
-              <Typography variant="h6">Monthly snapshot</Typography>
-              <TextField
-                label="Month"
-                type="month"
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                slotProps={{ inputLabel: { shrink: true } }}
-              />
-              <Button
-                variant="contained"
-                onClick={downloadSnapshot}
-                disabled={!selectedChildId}
-              >
-                Generate Monthly Snapshot
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
+        <MonthlySnapshotCard
+          month={month}
+          disabled={!selectedChildId}
+          onMonthChange={setMonth}
+          onGenerate={downloadSnapshot}
+        />
 
-        <Card>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              All logged activities
-            </Typography>
-            <List>
-              {activities.slice(0, 12).map((activity) => (
-                <ListItem key={activity.id}>
-                  <ListItemText
-                    primary={activity.title}
-                    secondary={`${activity.activity_date} • ${activity.skills.map((s) => s.name).join(", ") || "Unmapped"}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </CardContent>
-        </Card>
+        <ActivitiesListCard activities={activities} />
       </Stack>
     </Container>
   );
