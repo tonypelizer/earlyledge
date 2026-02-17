@@ -39,7 +39,17 @@ export function AuthCard({
     <Container maxWidth="sm" sx={{ py: 8 }}>
       <Card>
         <CardContent>
-          <Stack spacing={2}>
+          <Stack
+            spacing={2}
+            component="form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (loading) {
+                return;
+              }
+              onSubmit();
+            }}
+          >
             <Typography variant="h4">EarlyLedge</Typography>
             <Typography color="text.secondary">
               A calm way to make everyday learning visible.
@@ -57,7 +67,7 @@ export function AuthCard({
               value={password}
               onChange={(event) => onPasswordChange(event.target.value)}
             />
-            <Button variant="contained" onClick={onSubmit} disabled={loading}>
+            <Button variant="contained" type="submit" disabled={loading}>
               {loading ? (
                 <CircularProgress size={20} />
               ) : mode === "login" ? (
@@ -66,7 +76,7 @@ export function AuthCard({
                 "Create account"
               )}
             </Button>
-            <Button onClick={onToggleMode}>
+            <Button type="button" onClick={onToggleMode}>
               {mode === "login"
                 ? "Need an account? Sign up"
                 : "Already have an account? Log in"}
