@@ -6,7 +6,8 @@ export type Skill = {
 export type Child = {
   id: number;
   name: string;
-  age: number;
+  date_of_birth: string;
+  age: number | null;
   created_at: string;
 };
 

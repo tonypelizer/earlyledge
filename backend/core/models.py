@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -18,14 +19,25 @@ class User(AbstractUser):
 class Child(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="children")
 	name = models.CharField(max_length=120)
-	age = models.PositiveIntegerField()
+	date_of_birth = models.DateField(null=True, blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		ordering = ["name"]
 
+	@property
+	def age(self) -> int | None:
+		if not self.date_of_birth:
+			return None
+
+		today = timezone.localdate()
+		years = today.year - self.date_of_birth.year
+		if (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day):
+			years -= 1
+		return years
+
 	def __str__(self) -> str:
-		return f"{self.name} ({self.age})"
+		return f"{self.name} ({self.age if self.age is not None else 'Unknown age'})"
 
 
 class SkillCategory(models.Model):

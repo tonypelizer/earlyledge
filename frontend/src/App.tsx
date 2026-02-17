@@ -34,8 +34,9 @@ function App() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<number | "">("");
 
-  const [newChildName, setNewChildName] = useState("");
-  const [newChildAge, setNewChildAge] = useState<number | "">("");
+  const [childNameInput, setChildNameInput] = useState("");
+  const [childDateOfBirthInput, setChildDateOfBirthInput] = useState("");
+  const [editingChildId, setEditingChildId] = useState<number | null>(null);
 
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
@@ -57,6 +58,8 @@ function App() {
     () => children.find((child) => child.id === selectedChildId),
     [children, selectedChildId],
   );
+
+  const isEditingChild = editingChildId !== null;
 
   const refreshChildData = useCallback(async (childId: number) => {
     const [dashboardRes, activityRes] = await Promise.all([
@@ -116,21 +119,21 @@ function App() {
   };
 
   const addChild = async () => {
-    if (!newChildName || !newChildAge) {
+    if (!childNameInput || !childDateOfBirthInput) {
       return;
     }
 
     setError("");
     try {
       const response = await api.post("/children/", {
-        name: newChildName,
-        age: Number(newChildAge),
+        name: childNameInput,
+        date_of_birth: childDateOfBirthInput,
       });
 
       const createdChild = response.data as Child;
       setChildren((previous) => [...previous, createdChild]);
-      setNewChildName("");
-      setNewChildAge("");
+      setChildNameInput("");
+      setChildDateOfBirthInput("");
 
       if (!selectedChildId) {
         setSelectedChildId(createdChild.id);
@@ -143,7 +146,88 @@ function App() {
 
   const onSelectedChildChange = async (childId: number) => {
     setSelectedChildId(childId);
+    setEditingChildId(null);
+
+    const child = children.find((entry) => entry.id === childId);
+    if (child) {
+      setChildNameInput(child.name);
+      setChildDateOfBirthInput(child.date_of_birth);
+    }
+
     await refreshChildData(childId);
+  };
+
+  const startEditChild = () => {
+    if (!selectedChild) {
+      return;
+    }
+
+    setEditingChildId(selectedChild.id);
+    setChildNameInput(selectedChild.name);
+    setChildDateOfBirthInput(selectedChild.date_of_birth);
+  };
+
+  const cancelEditChild = () => {
+    setEditingChildId(null);
+    setChildNameInput("");
+    setChildDateOfBirthInput("");
+  };
+
+  const updateChild = async () => {
+    if (!editingChildId || !childNameInput || !childDateOfBirthInput) {
+      return;
+    }
+
+    setError("");
+    try {
+      const response = await api.patch(`/children/${editingChildId}/`, {
+        name: childNameInput,
+        date_of_birth: childDateOfBirthInput,
+      });
+      const updatedChild = response.data as Child;
+
+      setChildren((previous) =>
+        previous.map((child) =>
+          child.id === updatedChild.id ? updatedChild : child,
+        ),
+      );
+      setEditingChildId(null);
+      setChildNameInput("");
+      setChildDateOfBirthInput("");
+    } catch {
+      setError("Could not update child details.");
+    }
+  };
+
+  const deleteChild = async () => {
+    if (!selectedChildId) {
+      return;
+    }
+
+    setError("");
+    try {
+      const targetId = Number(selectedChildId);
+      await api.delete(`/children/${targetId}/`);
+
+      const nextChildren = children.filter((child) => child.id !== targetId);
+      setChildren(nextChildren);
+      setEditingChildId(null);
+      setChildNameInput("");
+      setChildDateOfBirthInput("");
+
+      if (nextChildren.length > 0) {
+        const nextSelectedId = nextChildren[0].id;
+        setSelectedChildId(nextSelectedId);
+        await refreshChildData(nextSelectedId);
+      } else {
+        setSelectedChildId("");
+        setDashboard(null);
+        setActivities([]);
+        setSuggestions([]);
+      }
+    } catch {
+      setError("Could not remove child.");
+    }
   };
 
   const onSkillToggle = (skillId: number, isSelected: boolean) => {
@@ -251,12 +335,17 @@ function App() {
             <ChildrenPanel
               childrenList={children}
               selectedChildId={selectedChildId}
-              newChildName={newChildName}
-              newChildAge={newChildAge}
+              childNameInput={childNameInput}
+              childDateOfBirthInput={childDateOfBirthInput}
+              isEditing={isEditingChild}
               onSelectedChildChange={onSelectedChildChange}
-              onNewChildNameChange={setNewChildName}
-              onNewChildAgeChange={setNewChildAge}
+              onChildNameChange={setChildNameInput}
+              onChildDateOfBirthChange={setChildDateOfBirthInput}
               onAddChild={addChild}
+              onStartEditChild={startEditChild}
+              onUpdateChild={updateChild}
+              onCancelEdit={cancelEditChild}
+              onDeleteChild={deleteChild}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>

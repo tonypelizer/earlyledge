@@ -18,7 +18,7 @@ CREATE TABLE core_child (
   id BIGSERIAL PRIMARY KEY,
   user_id BIGINT NOT NULL REFERENCES core_user(id) ON DELETE CASCADE,
   name VARCHAR(120) NOT NULL,
-  age INTEGER NOT NULL CHECK (age >= 0),
+  date_of_birth DATE NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

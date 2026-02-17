@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.db.models import Count
+from django.utils import timezone
 from rest_framework import serializers
 
 from core.models import Activity, Child, SkillCategory, Suggestion
@@ -36,10 +37,25 @@ class SkillCategorySerializer(serializers.ModelSerializer):
 
 
 class ChildSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Child
-        fields = ["id", "name", "age", "created_at"]
-        read_only_fields = ["id", "created_at"]
+        fields = ["id", "name", "date_of_birth", "age", "created_at"]
+        read_only_fields = ["id", "age", "created_at"]
+
+    def get_age(self, obj: Child):
+        return obj.age
+
+    def validate_date_of_birth(self, value):
+        if value > timezone.localdate():
+            raise serializers.ValidationError("Date of birth cannot be in the future.")
+        return value
+
+    def validate(self, attrs):
+        if self.instance is None and not attrs.get("date_of_birth"):
+            raise serializers.ValidationError({"date_of_birth": "Date of birth is required."})
+        return attrs
 
 
 class ActivitySerializer(serializers.ModelSerializer):

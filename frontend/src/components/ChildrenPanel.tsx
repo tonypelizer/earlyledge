@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Card,
   CardContent,
@@ -13,24 +14,36 @@ import type { Child } from "../types";
 type ChildrenPanelProps = {
   childrenList: Child[];
   selectedChildId: number | "";
-  newChildName: string;
-  newChildAge: number | "";
+  childNameInput: string;
+  childDateOfBirthInput: string;
+  isEditing: boolean;
   onSelectedChildChange: (childId: number) => void;
-  onNewChildNameChange: (value: string) => void;
-  onNewChildAgeChange: (value: number | "") => void;
+  onChildNameChange: (value: string) => void;
+  onChildDateOfBirthChange: (value: string) => void;
   onAddChild: () => void;
+  onStartEditChild: () => void;
+  onUpdateChild: () => void;
+  onCancelEdit: () => void;
+  onDeleteChild: () => void;
 };
 
 export function ChildrenPanel({
   childrenList,
   selectedChildId,
-  newChildName,
-  newChildAge,
+  childNameInput,
+  childDateOfBirthInput,
+  isEditing,
   onSelectedChildChange,
-  onNewChildNameChange,
-  onNewChildAgeChange,
+  onChildNameChange,
+  onChildDateOfBirthChange,
   onAddChild,
+  onStartEditChild,
+  onUpdateChild,
+  onCancelEdit,
+  onDeleteChild,
 }: ChildrenPanelProps) {
+  const hasSelectedChild = selectedChildId !== "";
+
   return (
     <Card>
       <CardContent>
@@ -46,27 +59,53 @@ export function ChildrenPanel({
           >
             {childrenList.map((child) => (
               <MenuItem key={child.id} value={child.id}>
-                {child.name} ({child.age})
+                {child.name} ({child.age ?? "Unknown"})
               </MenuItem>
             ))}
           </TextField>
+
+          {hasSelectedChild && !isEditing && (
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+              <Button variant="outlined" onClick={onStartEditChild}>
+                Edit child
+              </Button>
+              <Button variant="outlined" color="error" onClick={onDeleteChild}>
+                Remove child
+              </Button>
+            </Stack>
+          )}
+
+          {isEditing && (
+            <Alert severity="info">Editing selected child details.</Alert>
+          )}
+
           <TextField
-            label="Child name"
-            value={newChildName}
-            onChange={(event) => onNewChildNameChange(event.target.value)}
+            label="Name"
+            value={childNameInput}
+            onChange={(event) => onChildNameChange(event.target.value)}
           />
           <TextField
-            label="Age"
-            type="number"
-            value={newChildAge}
-            onChange={(event) => {
-              const value = event.target.value;
-              onNewChildAgeChange(value === "" ? "" : Number(value));
-            }}
+            label="Date of Birth"
+            type="date"
+            value={childDateOfBirthInput}
+            onChange={(event) => onChildDateOfBirthChange(event.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
-          <Button variant="contained" onClick={onAddChild}>
-            Add child
-          </Button>
+
+          {isEditing ? (
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+              <Button variant="contained" onClick={onUpdateChild}>
+                Save changes
+              </Button>
+              <Button variant="text" onClick={onCancelEdit}>
+                Cancel
+              </Button>
+            </Stack>
+          ) : (
+            <Button variant="contained" onClick={onAddChild}>
+              Add child
+            </Button>
+          )}
         </Stack>
       </CardContent>
     </Card>

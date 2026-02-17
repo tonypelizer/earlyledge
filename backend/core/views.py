@@ -108,6 +108,8 @@ class SuggestionListView(generics.ListAPIView):
 
 		if child_id:
 			child = get_object_or_404(Child, id=child_id, user=self.request.user)
+			if child.age is None:
+				return queryset.none()
 			queryset = queryset.filter(min_age__lte=child.age, max_age__gte=child.age)
 
 		return queryset.order_by("?")[:3]
