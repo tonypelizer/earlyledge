@@ -21,12 +21,12 @@ export function GentleNudgesCard({
   }
 
   return (
-    <Card
-      sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}
-    >
-      <CardContent>
-        <Stack spacing={1}>
-          <Typography variant="h6">Tips for Today</Typography>
+    <Card sx={{ borderRadius: 2 }}>
+      <CardContent sx={{ p: 3 }}>
+        <Stack spacing={2}>
+          <Typography variant="h6" fontWeight={700} color="#2d3748">
+            Tips for Today
+          </Typography>
           {missingSkills.map((skillName) => (
             <Alert
               key={skillName}

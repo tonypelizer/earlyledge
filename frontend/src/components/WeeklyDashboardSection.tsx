@@ -16,7 +16,7 @@ type WeeklyDashboardSectionProps = {
 };
 
 export function WeeklyDashboardSection({
-  childName,
+  childName: _childName,
   dashboard,
 }: WeeklyDashboardSectionProps) {
   const totalMinutes = dashboard.recent_activities.reduce(
@@ -27,31 +27,43 @@ export function WeeklyDashboardSection({
   const palette = ["#58a9e0", "#67b587", "#f2bf52", "#f08452", "#8c7ad9"];
 
   return (
-    <Card
-      sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}
-    >
-      <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+    <Card sx={{ borderRadius: 2 }}>
+      <CardContent sx={{ p: 3 }}>
         <Stack spacing={2}>
           <Box>
-            <Typography variant="h6" fontWeight={700}>
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              color="#2d3748"
+              sx={{ mb: 0.5 }}
+            >
               This Week&apos;s Learning Snapshot
             </Typography>
-            <Typography color="primary" variant="body2" fontWeight={600}>
-              For {childName}
+            <Typography color="primary" variant="body2" fontWeight={500}>
+              April 15 - April 21
             </Typography>
           </Box>
 
-          <Divider />
+          <Divider sx={{ my: 1 }} />
 
           <Stack
             direction={{ xs: "column", md: "row" }}
-            spacing={2}
-            alignItems="stretch"
+            spacing={3}
+            alignItems="center"
           >
-            <Box sx={{ width: { xs: "100%", md: 300 }, minWidth: 0 }}>
+            <Box
+              sx={{
+                width: 240,
+                height: 240,
+                minWidth: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <ResponsiveContainer
                 width="100%"
-                height={220}
+                height="100%"
                 minWidth={0}
                 minHeight={0}
               >
@@ -62,7 +74,8 @@ export function WeeklyDashboardSection({
                     nameKey="skill"
                     cx="50%"
                     cy="50%"
-                    outerRadius={92}
+                    outerRadius={100}
+                    innerRadius={0}
                     stroke="none"
                   >
                     {dashboard.skill_counts.map((entry, index) => (
@@ -78,53 +91,102 @@ export function WeeklyDashboardSection({
             </Box>
 
             <Stack
-              spacing={1}
+              spacing={1.5}
               flex={1}
               justifyContent="center"
-              sx={{ minWidth: 180 }}
+              sx={{ minWidth: 160 }}
             >
               {dashboard.skill_counts.map((entry, index) => (
                 <Stack
                   key={entry.skill_id}
                   direction="row"
-                  spacing={1}
+                  spacing={1.25}
                   alignItems="center"
                 >
                   <Box
                     sx={{
-                      width: 14,
-                      height: 14,
+                      width: 16,
+                      height: 16,
                       borderRadius: "50%",
                       bgcolor: palette[index % palette.length],
+                      flexShrink: 0,
                     }}
                   />
-                  <Typography variant="body2">{entry.skill}</Typography>
+                  <Typography
+                    variant="body2"
+                    fontWeight={500}
+                    color="text.primary"
+                  >
+                    {entry.skill}
+                  </Typography>
                 </Stack>
               ))}
             </Stack>
 
             <Stack
-              spacing={1.5}
+              spacing={2}
               sx={{
-                width: { xs: "100%", md: 220 },
-                pl: { md: 2 },
-                borderLeft: { md: "1px solid" },
-                borderColor: "divider",
+                minWidth: 200,
+                pl: { md: 3 },
+                borderLeft: { md: "1px solid #e2e8f0" },
               }}
               justifyContent="center"
             >
-              <Typography variant="h4" fontWeight={700} lineHeight={1}>
-                {dashboard.activity_count}
-              </Typography>
-              <Typography color="text.secondary" fontWeight={600}>
-                Activities Logged
-              </Typography>
-              <Typography variant="h4" fontWeight={700} lineHeight={1}>
-                {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
-              </Typography>
-              <Typography color="text.secondary" fontWeight={600}>
-                Total Learning Time
-              </Typography>
+              <Box>
+                <Typography
+                  variant="h3"
+                  fontWeight={700}
+                  lineHeight={1}
+                  color="#2d3748"
+                  sx={{ fontSize: "3rem" }}
+                >
+                  {dashboard.activity_count}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={500}
+                  sx={{ mt: 0.5 }}
+                >
+                  Activities Logged
+                </Typography>
+              </Box>
+              <Box>
+                <Stack direction="row" spacing={0.5} alignItems="baseline">
+                  <Typography
+                    variant="h3"
+                    fontWeight={700}
+                    lineHeight={1}
+                    color="#2d3748"
+                    sx={{ fontSize: "3rem" }}
+                  >
+                    {Math.floor(totalMinutes / 60)}
+                  </Typography>
+                  <Typography variant="h6" fontWeight={700} color="#2d3748">
+                    hrs
+                  </Typography>
+                  <Typography
+                    variant="h3"
+                    fontWeight={700}
+                    lineHeight={1}
+                    color="#2d3748"
+                    sx={{ fontSize: "3rem" }}
+                  >
+                    {totalMinutes % 60}
+                  </Typography>
+                  <Typography variant="h6" fontWeight={700} color="#2d3748">
+                    min
+                  </Typography>
+                </Stack>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={500}
+                  sx={{ mt: 0.5 }}
+                >
+                  Total Learning Time
+                </Typography>
+              </Box>
             </Stack>
           </Stack>
         </Stack>

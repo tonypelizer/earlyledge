@@ -43,12 +43,29 @@ export function ActivityFormCard({
   onSaveActivity,
 }: ActivityFormCardProps) {
   return (
-    <Card
-      sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}
-    >
-      <CardContent>
-        <Stack spacing={2}>
-          <Typography variant="h6">Add an Activity</Typography>
+    <Card sx={{ borderRadius: 2 }}>
+      <CardContent sx={{ p: 3 }}>
+        <Stack spacing={2.5}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Box
+              sx={{
+                width: 24,
+                height: 24,
+                borderRadius: "50%",
+                bgcolor: "#67b587",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography color="white" fontWeight={700} fontSize="1rem">
+                +
+              </Typography>
+            </Box>
+            <Typography variant="h6" fontWeight={700} color="#2d3748">
+              Add an Activity
+            </Typography>
+          </Stack>
           <TextField
             label="Title"
             value={title}

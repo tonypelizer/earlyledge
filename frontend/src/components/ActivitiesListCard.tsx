@@ -17,23 +17,33 @@ type ActivitiesListCardProps = {
 
 export function ActivitiesListCard({ activities }: ActivitiesListCardProps) {
   return (
-    <Card
-      sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}
-    >
-      <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
+    <Card sx={{ borderRadius: 2 }}>
+      <CardContent sx={{ p: 3 }}>
+        <Typography
+          variant="h6"
+          fontWeight={700}
+          color="#2d3748"
+          sx={{ mb: 2 }}
+        >
           Recent Activities
         </Typography>
         <List sx={{ p: 0 }}>
           {activities.slice(0, 6).map((activity, index) => (
             <Box key={activity.id}>
-              <ListItem disableGutters sx={{ py: 1.2 }}>
+              <ListItem disableGutters sx={{ py: 1.5, px: 0 }}>
                 <ListItemText
                   primary={activity.title}
-                  secondary={`${activity.skills.map((skill) => skill.name).join(", ") || "Unmapped"} • ${activity.duration_minutes ?? 0} min • ${activity.activity_date}`}
+                  secondary={`${activity.skills.map((skill) => skill.name).join(", ") || "Unmapped"} | ${activity.duration_minutes ?? 0} min | ${activity.activity_date}`}
                   slotProps={{
-                    primary: { fontWeight: 600 },
-                    secondary: { color: "text.secondary" },
+                    primary: {
+                      fontWeight: 600,
+                      color: "#2d3748",
+                      fontSize: "0.9375rem",
+                    },
+                    secondary: {
+                      color: "text.secondary",
+                      fontSize: "0.8125rem",
+                    },
                   }}
                 />
               </ListItem>
@@ -45,9 +55,9 @@ export function ActivitiesListCard({ activities }: ActivitiesListCardProps) {
           variant="body2"
           color="primary"
           fontWeight={600}
-          sx={{ mt: 1, textAlign: "right" }}
+          sx={{ mt: 2, textAlign: "right", cursor: "pointer" }}
         >
-          View all activities ›
+          View All Activities ›
         </Typography>
       </CardContent>
     </Card>

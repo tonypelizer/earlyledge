@@ -334,20 +334,29 @@ function App() {
   }
 
   return (
-    <Box sx={{ bgcolor: "#f7f8fb", minHeight: "100vh", py: 2 }}>
-      <Container maxWidth="xl" sx={{ py: 2 }}>
-        <Stack spacing={3}>
-          <AppTopBar userLabel={userLabel} onLogout={() => setToken(null)} />
+    <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh" }}>
+      <AppTopBar userLabel={userLabel} onLogout={() => setToken(null)} />
 
-          {error && <Alert severity="error">{error}</Alert>}
+      <Container maxWidth="xl">
+        <Box sx={{ px: 3, py: 3 }}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-          <Typography variant="h4" fontWeight={700} sx={{ px: { xs: 0, md: 1 } }}>
+          <Typography
+            variant="h4"
+            fontWeight={700}
+            color="#2d3748"
+            sx={{ mb: 3 }}
+          >
             Welcome{selectedChild ? `, ${selectedChild.name}` : ""}!
           </Typography>
 
-          <Grid container spacing={2.5} alignItems="flex-start">
+          <Grid container spacing={3} alignItems="flex-start">
             <Grid size={{ xs: 12, lg: 8 }}>
-              <Stack spacing={2.5}>
+              <Stack spacing={3}>
                 {selectedChild && dashboard && (
                   <WeeklyDashboardSection
                     childName={selectedChild.name}
@@ -377,7 +386,7 @@ function App() {
             </Grid>
 
             <Grid size={{ xs: 12, lg: 4 }}>
-              <Stack spacing={2.5}>
+              <Stack spacing={3}>
                 <ChildrenPanel
                   childrenList={children}
                   selectedChildId={selectedChildId}
@@ -394,15 +403,29 @@ function App() {
                   onDeleteChild={deleteChild}
                 />
 
-                <Card sx={{ borderRadius: 3, boxShadow: "0 8px 20px rgba(20, 35, 70, 0.06)" }}>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ mb: 1 }}>
+                <Card sx={{ borderRadius: 2 }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography
+                      variant="h6"
+                      fontWeight={700}
+                      color="#2d3748"
+                      sx={{ mb: 1.5 }}
+                    >
                       Weekly Reflections
                     </Typography>
-                    <Typography color="text.secondary" sx={{ mb: 2 }}>
-                      What was a highlight of your child&apos;s learning this week?
+                    <Typography
+                      color="text.secondary"
+                      fontSize="0.875rem"
+                      sx={{ mb: 2 }}
+                    >
+                      What was a highlight of your child&apos;s learning this
+                      week?
                     </Typography>
-                    <Button fullWidth variant="contained">
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      sx={{ py: 1.25, fontWeight: 600 }}
+                    >
                       Write a Note
                     </Button>
                   </CardContent>
@@ -422,7 +445,7 @@ function App() {
               </Stack>
             </Grid>
           </Grid>
-        </Stack>
+        </Box>
       </Container>
     </Box>
   );
