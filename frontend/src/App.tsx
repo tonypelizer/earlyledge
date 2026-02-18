@@ -407,7 +407,7 @@ function App() {
       />
 
       {currentPage === "suggestions" ? (
-        <SuggestionsPage />
+        <SuggestionsPage selectedChild={selectedChild} />
       ) : currentPage === "reports" ? (
         <ReportsPage selectedChild={selectedChild} />
       ) : currentPage === "children" ? (
