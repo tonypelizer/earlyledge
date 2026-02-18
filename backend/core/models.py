@@ -87,3 +87,18 @@ class Suggestion(models.Model):
 
 	def __str__(self) -> str:
 		return self.title
+
+
+class Reflection(models.Model):
+	child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="reflections")
+	week_start_date = models.DateField()  # Monday of the week
+	content = models.TextField()
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		unique_together = ("child", "week_start_date")
+		ordering = ["-week_start_date"]
+
+	def __str__(self) -> str:
+		return f"Reflection for {self.child.name} - Week of {self.week_start_date}"

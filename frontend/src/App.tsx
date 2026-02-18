@@ -7,8 +7,13 @@ import {
   Card,
   CardContent,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
   Stack,
+  TextField,
   Typography,
   useMediaQuery,
   useTheme,
@@ -63,6 +68,8 @@ function App() {
     null,
   );
   const [activityModalOpen, setActivityModalOpen] = useState(false);
+  const [reflectionModalOpen, setReflectionModalOpen] = useState(false);
+  const [reflectionNote, setReflectionNote] = useState("");
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [durationMinutes, setDurationMinutes] = useState<number | "">("");
@@ -323,6 +330,69 @@ function App() {
     setDurationMinutes("");
     setActivityDate(dayjs().format("YYYY-MM-DD"));
     setSelectedSkillIds([]);
+  };
+
+  const openReflectionModal = async () => {
+    if (!selectedChild) return;
+
+    // Calculate Monday of current week
+    const today = dayjs();
+    const weekStart = today.startOf("week").add(1, "day"); // Monday
+
+    try {
+      // Use the new weekly reflection endpoint
+      const response = await api.get(
+        `/reflections/weekly/${selectedChild.id}/${weekStart.format("YYYY-MM-DD")}/`,
+      );
+      setReflectionNote(response.data.content || "");
+      setReflectionModalOpen(true);
+    } catch (error) {
+      console.error("Error loading reflection:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+      }
+      setReflectionNote("");
+      setReflectionModalOpen(true);
+    }
+  };
+
+  const saveReflection = async () => {
+    if (!selectedChild) return;
+
+    const today = dayjs();
+    const weekStart = today.startOf("week").add(1, "day"); // Monday
+
+    try {
+      // Use the new weekly reflection endpoint that handles create/update
+      await api.post(
+        `/reflections/weekly/${selectedChild.id}/${weekStart.format("YYYY-MM-DD")}/`,
+        {
+          content: reflectionNote,
+        },
+      );
+
+      setReflectionModalOpen(false);
+    } catch (error) {
+      console.error("Error saving reflection:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Request data was:", {
+          child: selectedChild.id,
+          week_start_date: dayjs()
+            .startOf("week")
+            .add(1, "day")
+            .format("YYYY-MM-DD"),
+          content: reflectionNote,
+        });
+      }
+      setError("Failed to save reflection. Please try again.");
+    }
+  };
+
+  const cancelReflection = () => {
+    setReflectionModalOpen(false);
   };
 
   const updateActivity = async () => {
@@ -592,6 +662,7 @@ function App() {
                       <Button
                         fullWidth
                         variant="contained"
+                        onClick={openReflectionModal}
                         sx={{ py: 1.25, fontWeight: 600 }}
                       >
                         Write a Note
@@ -627,6 +698,56 @@ function App() {
         onSave={editingActivityId !== null ? updateActivity : addActivity}
         onCancel={cancelEditActivity}
       />
+
+      <Dialog
+        open={reflectionModalOpen}
+        onClose={cancelReflection}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 2 },
+        }}
+      >
+        <DialogTitle>
+          <Typography
+            component="span"
+            variant="h6"
+            fontWeight={700}
+            color="#2d3748"
+          >
+            Weekly Reflection
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Typography color="text.secondary" sx={{ mb: 2 }}>
+            What was a highlight of your child's learning this week?
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            value={reflectionNote}
+            onChange={(e) => setReflectionNote(e.target.value)}
+            placeholder="Share your thoughts about this week's learning moments..."
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button onClick={cancelReflection} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={saveReflection}
+            variant="contained"
+            sx={{
+              bgcolor: "#67b587",
+              "&:hover": { bgcolor: "#5a9a74" },
+            }}
+          >
+            Save Reflection
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

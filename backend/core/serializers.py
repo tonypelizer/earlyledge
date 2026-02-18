@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.utils import timezone
 from rest_framework import serializers
 
-from core.models import Activity, Child, SkillCategory, Suggestion
+from core.models import Activity, Child, Reflection, SkillCategory, Suggestion
 from core.services import auto_map_skills
 
 User = get_user_model()
@@ -127,6 +127,13 @@ class SuggestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Suggestion
         fields = ["id", "skill", "skill_name", "title", "description", "min_age", "max_age"]
+
+
+class ReflectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reflection
+        fields = ["id", "child", "week_start_date", "content", "created_at", "updated_at"]
+        read_only_fields = ["created_at", "updated_at"]
 
 
 class WeeklyDashboardSerializer(serializers.Serializer):

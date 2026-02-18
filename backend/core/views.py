@@ -4,14 +4,16 @@ from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from weasyprint import HTML
 
-from core.models import Activity, Child, SkillCategory, Suggestion
+from core.models import Activity, Child, Reflection, SkillCategory, Suggestion
 from core.serializers import (
 	ActivitySerializer,
 	ChildSerializer,
+	ReflectionSerializer,
 	SignupSerializer,
 	SkillCategorySerializer,
 	SuggestionSerializer,
@@ -401,3 +403,50 @@ class ReportsView(APIView):
 			"monthly_data": monthly_data,
 			"time_range": time_range
 		})
+
+
+class ReflectionViewSet(viewsets.ModelViewSet):
+	serializer_class = ReflectionSerializer
+	permission_classes = [permissions.IsAuthenticated]
+	
+	def get_queryset(self):
+		return Reflection.objects.filter(child__user=self.request.user)
+	
+	def perform_create(self, serializer):
+		# Ensure the child belongs to the current user
+		child = serializer.validated_data['child']
+		if child.user != self.request.user:
+			raise permissions.PermissionDenied("You can only create reflections for your own children.")
+		serializer.save()
+	
+	def perform_update(self, serializer):
+		# Ensure the reflection belongs to the current user
+		if self.get_object().child.user != self.request.user:
+			raise permissions.PermissionDenied("You can only update your own reflections.")
+		serializer.save()
+	
+	@action(detail=False, methods=['get', 'post'], url_path='weekly/(?P<child_id>[^/.]+)/(?P<week_start>[^/.]+)')
+	def weekly_reflection(self, request, child_id=None, week_start=None):
+		"""Get or create/update a weekly reflection for a specific child and week."""
+		try:
+			child = Child.objects.get(id=child_id, user=request.user)
+		except Child.DoesNotExist:
+			return Response({'error': 'Child not found'}, status=status.HTTP_404_NOT_FOUND)
+		
+		if request.method == 'GET':
+			try:
+				reflection = Reflection.objects.get(child=child, week_start_date=week_start)
+				serializer = ReflectionSerializer(reflection)
+				return Response(serializer.data)
+			except Reflection.DoesNotExist:
+				return Response({'content': ''}, status=status.HTTP_200_OK)
+		
+		elif request.method == 'POST':
+			content = request.data.get('content', '')
+			reflection, created = Reflection.objects.update_or_create(
+				child=child,
+				week_start_date=week_start,
+				defaults={'content': content}
+			)
+			serializer = ReflectionSerializer(reflection)
+			return Response(serializer.data, status=status.HTTP_200_OK)

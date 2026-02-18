@@ -5,6 +5,7 @@ from core.views import (
     ActivityViewSet,
     ChildViewSet,
     MonthlySnapshotPdfView,
+	ReflectionViewSet,
 	ReportsView,
     SignupView,
     SkillAnalysisView,
@@ -16,6 +17,7 @@ from core.views import (
 router = DefaultRouter()
 router.register("children", ChildViewSet, basename="children")
 router.register("activities", ActivityViewSet, basename="activities")
+router.register("reflections", ReflectionViewSet, basename="reflections")
 
 urlpatterns = [
     path("auth/signup/", SignupView.as_view(), name="signup"),
