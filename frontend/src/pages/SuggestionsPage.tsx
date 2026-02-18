@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import NatureIcon from "@mui/icons-material/Nature";
+import LocalFloristIcon from "@mui/icons-material/LocalFlorist";
 
 import { api } from "../api";
 import type { Child } from "../types";
@@ -221,9 +221,14 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
               alignItems="center"
               sx={{ mb: 1.5 }}
             >
-              <NatureIcon sx={{ color: "#67b587", fontSize: 32 }} />
-              <Typography variant="h4" fontWeight={700} color="#2d3748">
-                Here are some ideas for {selectedChild.name}:
+              <Typography sx={{ fontSize: 32 }}>🌱</Typography>
+              <Typography 
+                variant="h5" 
+                fontWeight={700} 
+                color="#2d3748"
+                sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
+              >
+                Some ideas for {selectedChild.name}
               </Typography>
             </Stack>
             {error ? (
