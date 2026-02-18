@@ -43,7 +43,20 @@ export function WeeklyDashboardSection({
 
   const dateRange = `${formatDate(startOfWeek)} - ${formatDate(endOfWeek)}`;
 
-  const palette = ["#58a9e0", "#67b587", "#f2bf52", "#f08452", "#8c7ad9"];
+  const palette = [
+    "#58a9e0", // Blue
+    "#67b587", // Green
+    "#f2bf52", // Yellow
+    "#f08452", // Orange
+    "#8c7ad9", // Purple
+    "#e85a8a", // Pink
+    "#4db6ac", // Teal
+    "#a1887f", // Brown
+    "#ff7043", // Deep Orange
+    "#9c27b0", // Deep Purple
+    "#2196f3", // Light Blue
+    "#795548", // Dark Brown
+  ];
 
   return (
     <Card sx={{ borderRadius: 2 }}>
