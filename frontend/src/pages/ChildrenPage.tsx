@@ -38,7 +38,7 @@ export function ChildrenPage({
 }: ChildrenPageProps) {
   return (
     <Container maxWidth="md">
-      <Box sx={{ px: 3, py: 4 }}>
+      <Box sx={{ px: { xs: 2, md: 3 }, py: { xs: 2, md: 3 } }}>
         <Typography
           variant="h4"
           fontWeight={700}

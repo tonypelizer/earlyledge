@@ -97,8 +97,8 @@ export function AppTopBar({
           justifyContent="space-between"
           alignItems="center"
           sx={{
-            py: 2,
-            px: 3,
+            py: 1,
+            px: { xs: 1, md: 2 },
           }}
         >
           <Stack

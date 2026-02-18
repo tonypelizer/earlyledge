@@ -431,7 +431,7 @@ function App() {
         <ActivitiesPage selectedChild={selectedChild} />
       ) : (
         <Container maxWidth="xl">
-          <Box sx={{ px: 3, py: 3 }}>
+          <Box sx={{ px: { xs: 1, md: 2 }, py: { xs: 2, md: 2.5 } }}>
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error}

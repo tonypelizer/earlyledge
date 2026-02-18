@@ -5,6 +5,8 @@ import {
   Divider,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -19,6 +21,9 @@ export function WeeklyDashboardSection({
   childName: _childName,
   dashboard,
 }: WeeklyDashboardSectionProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const totalMinutes = dashboard.recent_activities.reduce(
     (sum, activity) => sum + (activity.duration_minutes ?? 0),
     0,
@@ -65,76 +70,93 @@ export function WeeklyDashboardSection({
             spacing={3}
             alignItems="center"
           >
-            <Box
+            {/* Pie Chart and Skills - side by side on mobile, separate on desktop */}
+            <Stack
+              direction={{ xs: "row", md: "row" }}
+              spacing={{ xs: 2, md: 0 }}
+              alignItems="center"
               sx={{
-                width: 240,
-                height: 240,
-                minWidth: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                flex: { md: 1 },
+                width: { xs: "100%", md: "auto" },
               }}
             >
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-                minWidth={0}
-                minHeight={0}
+              {/* Pie Chart */}
+              <Box
+                sx={{
+                  width: { xs: 160, md: 240 },
+                  height: { xs: 160, md: 240 },
+                  minWidth: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  mr: { md: 3 },
+                }}
               >
-                <PieChart>
-                  <Pie
-                    data={dashboard.skill_counts}
-                    dataKey="count"
-                    nameKey="skill"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    innerRadius={0}
-                    stroke="none"
-                  >
-                    {dashboard.skill_counts.map((entry, index) => (
-                      <Cell
-                        key={`${entry.skill}-${entry.skill_id}`}
-                        fill={palette[index % palette.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </Box>
-
-            <Stack
-              spacing={1.5}
-              flex={1}
-              justifyContent="center"
-              sx={{ minWidth: 160 }}
-            >
-              {dashboard.skill_counts.map((entry, index) => (
-                <Stack
-                  key={entry.skill_id}
-                  direction="row"
-                  spacing={1.25}
-                  alignItems="center"
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  minWidth={0}
+                  minHeight={0}
                 >
-                  <Box
-                    sx={{
-                      width: 16,
-                      height: 16,
-                      borderRadius: "50%",
-                      bgcolor: palette[index % palette.length],
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Typography
-                    variant="body2"
-                    fontWeight={500}
-                    color="text.primary"
+                  <PieChart>
+                    <Pie
+                      data={dashboard.skill_counts}
+                      dataKey="count"
+                      nameKey="skill"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={isMobile ? 70 : 100}
+                      innerRadius={0}
+                      stroke="none"
+                    >
+                      {dashboard.skill_counts.map((entry, index) => (
+                        <Cell
+                          key={`${entry.skill}-${entry.skill_id}`}
+                          fill={palette[index % palette.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Box>
+
+              <Stack
+                spacing={1.5}
+                flex={1}
+                justifyContent="center"
+                sx={{ minWidth: 160 }}
+              >
+                {dashboard.skill_counts.map((entry, index) => (
+                  <Stack
+                    key={entry.skill_id}
+                    direction="row"
+                    spacing={1.25}
+                    alignItems="center"
                   >
-                    {entry.skill}
-                  </Typography>
-                </Stack>
-              ))}
+                    <Box
+                      sx={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        bgcolor: palette[index % palette.length],
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      fontWeight={500}
+                      color="text.primary"
+                      sx={{
+                        fontSize: { xs: "0.75rem", md: "0.875rem" },
+                      }}
+                    >
+                      {entry.skill}
+                    </Typography>
+                  </Stack>
+                ))}
+              </Stack>
             </Stack>
 
             <Stack
