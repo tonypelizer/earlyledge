@@ -26,12 +26,14 @@ type ActivitiesListCardProps = {
   activities: Activity[];
   onEditActivity: (activity: Activity) => void;
   onDeleteActivity: (activityId: number) => void;
+  onViewAllActivities?: () => void;
 };
 
 export function ActivitiesListCard({
   activities,
   onEditActivity,
   onDeleteActivity,
+  onViewAllActivities,
 }: ActivitiesListCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<Activity | null>(
@@ -118,6 +120,7 @@ export function ActivitiesListCard({
             color="primary"
             fontWeight={600}
             sx={{ mt: 2, textAlign: "right", cursor: "pointer" }}
+            onClick={onViewAllActivities}
           >
             View All Activities ›
           </Typography>

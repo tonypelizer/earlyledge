@@ -23,6 +23,7 @@ import { WeeklyDashboardSection } from "./components/WeeklyDashboardSection";
 import { SuggestionsPage } from "./pages/SuggestionsPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { ChildrenPage } from "./pages/ChildrenPage";
+import { ActivitiesPage } from "./pages/ActivitiesPage";
 import type {
   Activity,
   Child,
@@ -32,7 +33,7 @@ import type {
 } from "./types";
 
 type AuthMode = "login" | "signup";
-type PageType = "home" | "suggestions" | "reports" | "children";
+type PageType = "home" | "suggestions" | "reports" | "children" | "activities";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<PageType>("home");
@@ -426,6 +427,8 @@ function App() {
           onCancelEdit={cancelEditChild}
           onDeleteChild={deleteChild}
         />
+      ) : currentPage === "activities" ? (
+        <ActivitiesPage selectedChild={selectedChild} />
       ) : (
         <Container maxWidth="xl">
           <Box sx={{ px: 3, py: 3 }}>
@@ -458,6 +461,7 @@ function App() {
                     activities={activities}
                     onEditActivity={startEditActivity}
                     onDeleteActivity={deleteActivity}
+                    onViewAllActivities={() => setCurrentPage("activities")}
                   />
 
                   <SuggestionsCard suggestions={suggestions} />
