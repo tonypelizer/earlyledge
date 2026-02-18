@@ -110,7 +110,7 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
       return uniqueSuggestionSkills.sort();
     }
 
-    // Preserve the exact order from backend (0-activity skills first, then 1-activity skills)
+    // Sort skills by priority: missing skills first (least rich), then other skills, then rich skills last
     const missingSkillsFromSuggestions = skillAnalysis.missing_skills.filter(
       (skill) => uniqueSuggestionSkills.includes(skill),
     );
@@ -118,6 +118,15 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
     const richSkillsFromSuggestions = skillAnalysis.rich_skills.filter(
       (skill) => uniqueSuggestionSkills.includes(skill),
     );
+
+    // Include ALL other skills that aren't categorized as rich or missing
+    const otherSkills = uniqueSuggestionSkills
+      .filter(
+        (skill) =>
+          !skillAnalysis.missing_skills.includes(skill) &&
+          !skillAnalysis.rich_skills.includes(skill),
+      )
+      .sort();
 
     // Then add any missing skills that aren't in suggestions (preserve backend order)
     const otherMissingSkills = skillAnalysis.missing_skills.filter(
@@ -129,10 +138,12 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
       .filter((skill) => !uniqueSuggestionSkills.includes(skill))
       .sort();
 
+    // Order: missing skills first (least rich), then other skills, then rich skills last
     return [
       ...missingSkillsFromSuggestions,
-      ...richSkillsFromSuggestions,
       ...otherMissingSkills,
+      ...otherSkills,
+      ...richSkillsFromSuggestions,
       ...otherRichSkills,
     ];
   };

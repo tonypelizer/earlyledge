@@ -280,96 +280,29 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                             <ResponsiveContainer width="100%" height="100%">
                               <AreaChart data={reportsData.monthly_data}>
                                 <defs>
-                                  <linearGradient
-                                    id="colorLiteracy"
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="1"
-                                  >
-                                    <stop
-                                      offset="5%"
-                                      stopColor="#5b9bd5"
-                                      stopOpacity={0.8}
-                                    />
-                                    <stop
-                                      offset="95%"
-                                      stopColor="#5b9bd5"
-                                      stopOpacity={0.3}
-                                    />
-                                  </linearGradient>
-                                  <linearGradient
-                                    id="colorMath"
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="1"
-                                  >
-                                    <stop
-                                      offset="5%"
-                                      stopColor="#f2bf52"
-                                      stopOpacity={0.8}
-                                    />
-                                    <stop
-                                      offset="95%"
-                                      stopColor="#f2bf52"
-                                      stopOpacity={0.3}
-                                    />
-                                  </linearGradient>
-                                  <linearGradient
-                                    id="colorCreativity"
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="1"
-                                  >
-                                    <stop
-                                      offset="5%"
-                                      stopColor="#f08452"
-                                      stopOpacity={0.8}
-                                    />
-                                    <stop
-                                      offset="95%"
-                                      stopColor="#f08452"
-                                      stopOpacity={0.3}
-                                    />
-                                  </linearGradient>
-                                  <linearGradient
-                                    id="colorMovement"
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="1"
-                                  >
-                                    <stop
-                                      offset="5%"
-                                      stopColor="#67b587"
-                                      stopOpacity={0.8}
-                                    />
-                                    <stop
-                                      offset="95%"
-                                      stopColor="#67b587"
-                                      stopOpacity={0.3}
-                                    />
-                                  </linearGradient>
-                                  <linearGradient
-                                    id="colorLife"
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="1"
-                                  >
-                                    <stop
-                                      offset="5%"
-                                      stopColor="#8c7ad9"
-                                      stopOpacity={0.8}
-                                    />
-                                    <stop
-                                      offset="95%"
-                                      stopColor="#8c7ad9"
-                                      stopOpacity={0.3}
-                                    />
-                                  </linearGradient>
+                                  {Object.entries(skillColors).map(
+                                    ([skill, color]) => (
+                                      <linearGradient
+                                        key={skill}
+                                        id={`color${skill.replace(/[^a-zA-Z]/g, "")}`}
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
+                                      >
+                                        <stop
+                                          offset="5%"
+                                          stopColor={color}
+                                          stopOpacity={0.8}
+                                        />
+                                        <stop
+                                          offset="95%"
+                                          stopColor={color}
+                                          stopOpacity={0.3}
+                                        />
+                                      </linearGradient>
+                                    ),
+                                  )}
                                 </defs>
                                 <CartesianGrid
                                   strokeDasharray="3 3"
@@ -385,41 +318,16 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                                   tickLine={false}
                                 />
                                 <Tooltip />
-                                <Area
-                                  type="monotone"
-                                  dataKey="Life Skills"
-                                  stackId="1"
-                                  stroke="#8c7ad9"
-                                  fill="url(#colorLife)"
-                                />
-                                <Area
-                                  type="monotone"
-                                  dataKey="Movement"
-                                  stackId="1"
-                                  stroke="#67b587"
-                                  fill="url(#colorMovement)"
-                                />
-                                <Area
-                                  type="monotone"
-                                  dataKey="Creativity"
-                                  stackId="1"
-                                  stroke="#f08452"
-                                  fill="url(#colorCreativity)"
-                                />
-                                <Area
-                                  type="monotone"
-                                  dataKey="Math & Logic"
-                                  stackId="1"
-                                  stroke="#f2bf52"
-                                  fill="url(#colorMath)"
-                                />
-                                <Area
-                                  type="monotone"
-                                  dataKey="Literacy"
-                                  stackId="1"
-                                  stroke="#5b9bd5"
-                                  fill="url(#colorLiteracy)"
-                                />
+                                {Object.keys(skillColors).map((skill) => (
+                                  <Area
+                                    key={skill}
+                                    type="monotone"
+                                    dataKey={skill}
+                                    stackId="1"
+                                    stroke={skillColors[skill]}
+                                    fill={`url(#color${skill.replace(/[^a-zA-Z]/g, "")})`}
+                                  />
+                                ))}
                               </AreaChart>
                             </ResponsiveContainer>
                           ) : (

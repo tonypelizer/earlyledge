@@ -228,16 +228,16 @@ class SkillAnalysisView(APIView):
 		rich_skills = [name for name, count in sorted_skills if count >= 2][:3]
 		
 		# Separate completely missing skills (0 activities) from low-activity skills (1 activity)
-		zero_activity_skills = [name for name, count in sorted_skills if count == 0 and name not in rich_skills]
-		low_activity_skills = [name for name, count in sorted_skills if count == 1 and name not in rich_skills]
+		zero_activity_skills = [name for name, count in sorted_skills if count == 0]
+		low_activity_skills = [name for name, count in sorted_skills if count == 1]
 		
 		# Prioritize zero-activity skills, then low-activity skills
 		missing_skills = zero_activity_skills + low_activity_skills
 		
 		# Get suggestions for all skills (both rich and missing)
-		all_available_skills = rich_skills + missing_skills
+		all_available_skills = list(skill_counts.keys())  # Include ALL skills, not just rich + missing
 		suggestions_queryset = Suggestion.objects.filter(
-			skill__name__in=all_available_skills,  # Include all skills
+			skill__name__in=all_available_skills,
 			min_age__lte=child.age or 8,
 			max_age__gte=child.age or 4
 		).select_related('skill')
@@ -253,7 +253,7 @@ class SkillAnalysisView(APIView):
 				"duration_range": f"{suggestion.min_age}-{suggestion.max_age} years"
 			})
 		
-		# Then add rich skills suggestions (secondary)
+		# Then add rich skills suggestions (secondary priority)
 		for suggestion in suggestions_queryset.filter(skill__name__in=rich_skills):
 			personalized_suggestions.append({
 				"id": suggestion.id,
@@ -263,14 +263,38 @@ class SkillAnalysisView(APIView):
 				"duration_range": f"{suggestion.min_age}-{suggestion.max_age} years"
 			})
 		
+		# Finally add suggestions for any other skills (so all skills appear in filters)
+		other_skills = [name for name in skill_counts.keys() if name not in rich_skills and name not in missing_skills]
+		for suggestion in suggestions_queryset.filter(skill__name__in=other_skills):
+			personalized_suggestions.append({
+				"id": suggestion.id,
+				"title": suggestion.title,
+				"description": suggestion.description,
+				"skill_name": suggestion.skill.name,
+				"duration_range": f"{suggestion.min_age}-{suggestion.max_age} years"
+			})
+
+		# Ensure ALL skills appear in the response (add placeholders for skills without age-appropriate suggestions)
+		skills_with_suggestions = set(s["skill_name"] for s in personalized_suggestions)
+		for skill_name in skill_counts.keys():
+			if skill_name not in skills_with_suggestions:
+				# Add a generic placeholder so the skill appears in filters
+				personalized_suggestions.append({
+					"id": f"placeholder_{skill_name.lower().replace(' ', '_').replace('/', '_')}",
+					"title": f"Explore {skill_name}",
+					"description": f"Great {skill_name.lower()} activities are perfect for developing important skills. Check back for more suggestions!",
+					"skill_name": skill_name,
+					"duration_range": "All ages"
+				})
+		
 		# Generate analysis text
 		if rich_skills and missing_skills:
 			rich_text = " and ".join(rich_skills[:2]) if len(rich_skills) > 1 else rich_skills[0]
 			missing_text = " or ".join(missing_skills[:2])
-			analysis_text = f"This week has been rich in {rich_text}. You might enjoy adding a little {missing_text}."
+			analysis_text = f"This week has been rich in {rich_text} activities. You might enjoy adding some {missing_text} activities."
 		elif rich_skills:
 			rich_text = " and ".join(rich_skills[:2]) if len(rich_skills) > 1 else rich_skills[0]
-			analysis_text = f"Great focus on {rich_text} recently! Consider exploring some other skill areas."
+			analysis_text = f"Great focus on {rich_text} activities recently! Consider exploring some other skill areas."
 		else:
 			analysis_text = "You've been exploring various skills. Keep up the great work!"
 		
