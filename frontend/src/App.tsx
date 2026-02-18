@@ -346,7 +346,8 @@ function App() {
       );
       setReflectionNote(response.data.content || "");
       setReflectionModalOpen(true);
-    } catch (error) {
+    } catch (err) {
+      const error = err as { response?: { data: unknown; status: number } };
       console.error("Error loading reflection:", error);
       if (error.response) {
         console.error("Response data:", error.response.data);
@@ -373,7 +374,8 @@ function App() {
       );
 
       setReflectionModalOpen(false);
-    } catch (error) {
+    } catch (err) {
+      const error = err as { response?: { data: unknown; status: number } };
       console.error("Error saving reflection:", error);
       if (error.response) {
         console.error("Response data:", error.response.data);
