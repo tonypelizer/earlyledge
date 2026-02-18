@@ -153,6 +153,28 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
     return suggestions.filter((s) => skillFilter.includes(s.skill_name));
   };
 
+  const sortSuggestionsByPriority = (suggestions: PersonalizedSuggestion[]) => {
+    if (!skillAnalysis) return suggestions;
+
+    return [...suggestions].sort((a, b) => {
+      const aIsMissing = skillAnalysis.missing_skills.includes(a.skill_name);
+      const bIsMissing = skillAnalysis.missing_skills.includes(b.skill_name);
+      const aIsRich = skillAnalysis.rich_skills.includes(a.skill_name);
+      const bIsRich = skillAnalysis.rich_skills.includes(b.skill_name);
+
+      // Missing skills first (highest priority)
+      if (aIsMissing && !bIsMissing) return -1;
+      if (!aIsMissing && bIsMissing) return 1;
+
+      // Rich skills last (lowest priority)
+      if (aIsRich && !bIsRich) return 1;
+      if (!aIsRich && bIsRich) return -1;
+
+      // Same priority, maintain original order
+      return 0;
+    });
+  };
+
   const toggleSkillFilter = (skill: string) => {
     setSkillFilter((prev) =>
       prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
@@ -222,9 +244,9 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
               sx={{ mb: 1.5 }}
             >
               <Typography sx={{ fontSize: 32 }}>🌱</Typography>
-              <Typography 
-                variant="h5" 
-                fontWeight={700} 
+              <Typography
+                variant="h5"
+                fontWeight={700}
                 color="#2d3748"
                 sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
               >
@@ -320,10 +342,14 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
               <Grid container spacing={3}>
                 {skillAnalysis?.personalized_suggestions.length ? (
                   filterSuggestionsBySkill(
-                    skillAnalysis.personalized_suggestions,
+                    sortSuggestionsByPriority(
+                      skillAnalysis.personalized_suggestions,
+                    ),
                   ).length > 0 ? (
                     filterSuggestionsBySkill(
-                      skillAnalysis.personalized_suggestions,
+                      sortSuggestionsByPriority(
+                        skillAnalysis.personalized_suggestions,
+                      ),
                     ).map((suggestion) => (
                       <Grid size={{ xs: 12, md: 4 }} key={suggestion.id}>
                         <Card
