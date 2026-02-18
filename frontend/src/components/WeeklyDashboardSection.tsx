@@ -160,6 +160,7 @@ export function WeeklyDashboardSection({
             </Stack>
 
             <Stack
+              direction={{ xs: "row", md: "column" }}
               spacing={2}
               sx={{
                 minWidth: 200,
@@ -168,13 +169,15 @@ export function WeeklyDashboardSection({
               }}
               justifyContent="center"
             >
-              <Box>
+              <Box sx={{ flex: { xs: 1, md: "none" }, textAlign: "center" }}>
                 <Typography
                   variant="h3"
                   fontWeight={700}
                   lineHeight={1}
                   color="#2d3748"
-                  sx={{ fontSize: "3rem" }}
+                  sx={{
+                    fontSize: { xs: "2rem", md: "3rem" },
+                  }}
                 >
                   {dashboard.activity_count}
                 </Typography>
@@ -182,23 +185,40 @@ export function WeeklyDashboardSection({
                   variant="body2"
                   color="text.secondary"
                   fontWeight={500}
-                  sx={{ mt: 0.5 }}
+                  sx={{
+                    mt: 0.5,
+                    fontSize: { xs: "0.75rem", md: "0.875rem" },
+                  }}
                 >
                   Activities Logged
                 </Typography>
               </Box>
-              <Box>
-                <Stack direction="row" spacing={0.5} alignItems="baseline">
+              <Box sx={{ flex: { xs: 1, md: "none" }, textAlign: "center" }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  alignItems="baseline"
+                  sx={{ justifyContent: "center" }}
+                >
                   <Typography
                     variant="h3"
                     fontWeight={700}
                     lineHeight={1}
                     color="#2d3748"
-                    sx={{ fontSize: "3rem" }}
+                    sx={{
+                      fontSize: { xs: "1.5rem", md: "3rem" },
+                    }}
                   >
                     {Math.floor(totalMinutes / 60)}
                   </Typography>
-                  <Typography variant="h6" fontWeight={700} color="#2d3748">
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    color="#2d3748"
+                    sx={{
+                      fontSize: { xs: "0.875rem", md: "1.25rem" },
+                    }}
+                  >
                     hrs
                   </Typography>
                   <Typography
@@ -206,11 +226,20 @@ export function WeeklyDashboardSection({
                     fontWeight={700}
                     lineHeight={1}
                     color="#2d3748"
-                    sx={{ fontSize: "3rem" }}
+                    sx={{
+                      fontSize: { xs: "1.5rem", md: "3rem" },
+                    }}
                   >
                     {totalMinutes % 60}
                   </Typography>
-                  <Typography variant="h6" fontWeight={700} color="#2d3748">
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    color="#2d3748"
+                    sx={{
+                      fontSize: { xs: "0.875rem", md: "1.25rem" },
+                    }}
+                  >
                     min
                   </Typography>
                 </Stack>
@@ -218,7 +247,10 @@ export function WeeklyDashboardSection({
                   variant="body2"
                   color="text.secondary"
                   fontWeight={500}
-                  sx={{ mt: 0.5 }}
+                  sx={{
+                    mt: 0.5,
+                    fontSize: { xs: "0.75rem", md: "0.875rem" },
+                  }}
                 >
                   Total Learning Time
                 </Typography>

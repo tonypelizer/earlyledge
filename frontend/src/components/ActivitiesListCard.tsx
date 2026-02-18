@@ -16,6 +16,8 @@ import {
   ListItemText,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -35,6 +37,9 @@ export function ActivitiesListCard({
   onDeleteActivity,
   onViewAllActivities,
 }: ActivitiesListCardProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<Activity | null>(
     null,
@@ -77,22 +82,24 @@ export function ActivitiesListCard({
                   disableGutters
                   sx={{ py: 1.5, px: 0 }}
                   secondaryAction={
-                    <Stack direction="row" spacing={0.5}>
-                      <IconButton
-                        edge="end"
-                        size="small"
-                        onClick={() => onEditActivity(activity)}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        size="small"
-                        onClick={() => handleDeleteClick(activity)}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
+                    !isMobile ? (
+                      <Stack direction="row" spacing={0.5}>
+                        <IconButton
+                          edge="end"
+                          size="small"
+                          onClick={() => onEditActivity(activity)}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          size="small"
+                          onClick={() => handleDeleteClick(activity)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    ) : null
                   }
                 >
                   <ListItemText
