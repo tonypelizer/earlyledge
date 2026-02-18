@@ -19,6 +19,8 @@ import {
   DialogContentText,
   DialogTitle,
   Pagination,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -33,6 +35,9 @@ type ActivitiesPageProps = {
 };
 
 export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [activities, setActivities] = useState<Activity[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(false);
@@ -252,7 +257,13 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
                           disableGutters
                           sx={{ py: 2, px: 0 }}
                           secondaryAction={
-                            <Stack direction="row" spacing={0.5}>
+                            <Stack
+                              direction="row"
+                              spacing={0.5}
+                              sx={{
+                                transform: "translateY(-100%)",
+                              }}
+                            >
                               <IconButton
                                 edge="end"
                                 size="small"
@@ -273,29 +284,61 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
                           <ListItemText
                             primary={activity.title}
                             secondary={
-                              <Stack spacing={0.5}>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  fontSize="0.8125rem"
-                                >
-                                  {activity.skills
-                                    .map((skill) => skill.name)
-                                    .join(", ") || "Unmapped"}{" "}
-                                  | {activity.duration_minutes ?? 0} min |{" "}
-                                  {activity.activity_date}
-                                </Typography>
-                                {activity.notes && (
+                              isMobile ? (
+                                <Stack spacing={0.5}>
                                   <Typography
                                     variant="body2"
                                     color="text.secondary"
-                                    fontSize="0.75rem"
-                                    sx={{ fontStyle: "italic" }}
+                                    fontSize="0.8125rem"
                                   >
-                                    "{activity.notes}"
+                                    {activity.skills
+                                      .map((skill) => skill.name)
+                                      .join(", ") || "Unmapped"}
                                   </Typography>
-                                )}
-                              </Stack>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    fontSize="0.8125rem"
+                                  >
+                                    {activity.duration_minutes ?? 0} min •{" "}
+                                    {activity.activity_date}
+                                  </Typography>
+                                  {activity.notes && (
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                      fontSize="0.75rem"
+                                      sx={{ fontStyle: "italic" }}
+                                    >
+                                      "{activity.notes}"
+                                    </Typography>
+                                  )}
+                                </Stack>
+                              ) : (
+                                <Stack spacing={0.5}>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    fontSize="0.8125rem"
+                                  >
+                                    {activity.skills
+                                      .map((skill) => skill.name)
+                                      .join(", ") || "Unmapped"}{" "}
+                                    | {activity.duration_minutes ?? 0} min |{" "}
+                                    {activity.activity_date}
+                                  </Typography>
+                                  {activity.notes && (
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                      fontSize="0.75rem"
+                                      sx={{ fontStyle: "italic" }}
+                                    >
+                                      "{activity.notes}"
+                                    </Typography>
+                                  )}
+                                </Stack>
+                              )
                             }
                             slotProps={{
                               primary: {

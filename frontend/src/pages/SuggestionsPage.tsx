@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import LocalFloristIcon from "@mui/icons-material/LocalFlorist";
 
 import { api } from "../api";
 import type { Child } from "../types";
