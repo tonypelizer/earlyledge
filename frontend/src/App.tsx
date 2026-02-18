@@ -14,7 +14,7 @@ import {
 
 import { api, setAuthToken } from "./api";
 import { ActivitiesListCard } from "./components/ActivitiesListCard";
-import { ActivityFormCard } from "./components/ActivityFormCard";
+import { ActivityModal } from "./components/ActivityModal";
 import { AppTopBar } from "./components/AppTopBar";
 import { AuthCard } from "./components/AuthCard";
 import { ChildrenPanel } from "./components/ChildrenPanel";
@@ -55,6 +55,7 @@ function App() {
   const [editingActivityId, setEditingActivityId] = useState<number | null>(
     null,
   );
+  const [activityModalOpen, setActivityModalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [durationMinutes, setDurationMinutes] = useState<number | "">("");
@@ -271,6 +272,7 @@ function App() {
         skill_ids: selectedSkillIds,
       });
 
+      setActivityModalOpen(false);
       setTitle("");
       setNotes("");
       setDurationMinutes("");
@@ -290,9 +292,21 @@ function App() {
     setDurationMinutes(activity.duration_minutes ?? "");
     setActivityDate(activity.activity_date);
     setSelectedSkillIds(activity.skills.map((s) => s.id));
+    setActivityModalOpen(true);
+  };
+
+  const openAddActivityModal = () => {
+    setEditingActivityId(null);
+    setTitle("");
+    setNotes("");
+    setDurationMinutes("");
+    setActivityDate(dayjs().format("YYYY-MM-DD"));
+    setSelectedSkillIds([]);
+    setActivityModalOpen(true);
   };
 
   const cancelEditActivity = () => {
+    setActivityModalOpen(false);
     setEditingActivityId(null);
     setTitle("");
     setNotes("");
@@ -316,6 +330,7 @@ function App() {
         skill_ids: selectedSkillIds,
       });
 
+      setActivityModalOpen(false);
       setEditingActivityId(null);
       setTitle("");
       setNotes("");
@@ -440,24 +455,27 @@ function App() {
                     />
                   )}
 
-                  <ActivityFormCard
-                    title={title}
-                    notes={notes}
-                    durationMinutes={durationMinutes}
-                    activityDate={activityDate}
-                    selectedSkillIds={selectedSkillIds}
-                    skills={skills}
-                    isEditing={editingActivityId !== null}
-                    onTitleChange={setTitle}
-                    onNotesChange={setNotes}
-                    onDurationChange={setDurationMinutes}
-                    onActivityDateChange={setActivityDate}
-                    onSkillToggle={onSkillToggle}
-                    onSaveActivity={
-                      editingActivityId !== null ? updateActivity : addActivity
-                    }
-                    onCancelEdit={cancelEditActivity}
-                  />
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", mb: 2 }}
+                  >
+                    <Button
+                      variant="contained"
+                      size="large"
+                      onClick={openAddActivityModal}
+                      sx={{
+                        px: 4,
+                        py: 1.5,
+                        borderRadius: 2,
+                        fontWeight: 600,
+                        bgcolor: "#67b587",
+                        "&:hover": {
+                          bgcolor: "#5a9a74",
+                        },
+                      }}
+                    >
+                      + Add Activity
+                    </Button>
+                  </Box>
 
                   <ActivitiesListCard
                     activities={activities}
@@ -507,6 +525,24 @@ function App() {
               </Grid>
             </Grid>
           </Box>
+
+          <ActivityModal
+            open={activityModalOpen}
+            title={title}
+            notes={notes}
+            durationMinutes={durationMinutes}
+            activityDate={activityDate}
+            selectedSkillIds={selectedSkillIds}
+            skills={skills}
+            isEditing={editingActivityId !== null}
+            onTitleChange={setTitle}
+            onNotesChange={setNotes}
+            onDurationChange={setDurationMinutes}
+            onActivityDateChange={setActivityDate}
+            onSkillToggle={onSkillToggle}
+            onSave={editingActivityId !== null ? updateActivity : addActivity}
+            onCancel={cancelEditActivity}
+          />
         </Container>
       )}
     </Box>
