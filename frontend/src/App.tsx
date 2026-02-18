@@ -23,6 +23,7 @@ import { MonthlySnapshotCard } from "./components/MonthlySnapshotCard";
 import { SuggestionsCard } from "./components/SuggestionsCard";
 import { WeeklyDashboardSection } from "./components/WeeklyDashboardSection";
 import { SuggestionsPage } from "./pages/SuggestionsPage";
+import { ReportsPage } from "./pages/ReportsPage";
 import type {
   Activity,
   Child,
@@ -348,13 +349,7 @@ function App() {
       {currentPage === "suggestions" ? (
         <SuggestionsPage />
       ) : currentPage === "reports" ? (
-        <Container maxWidth="xl">
-          <Box sx={{ px: 3, py: 3 }}>
-            <Typography variant="h4" fontWeight={700} color="#2d3748">
-              Reports (Coming Soon)
-            </Typography>
-          </Box>
-        </Container>
+        <ReportsPage />
       ) : (
         <Container maxWidth="xl">
           <Box sx={{ px: 3, py: 3 }}>
