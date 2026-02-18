@@ -69,7 +69,13 @@ export function AppTopBar({
             px: 3,
           }}
         >
-          <Stack direction="row" spacing={1.5} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1.5}
+            alignItems="center"
+            sx={{ cursor: "pointer" }}
+            onClick={handleNavClick("home")}
+          >
             <img
               src={logoUrl}
               alt="EarlyLedge"

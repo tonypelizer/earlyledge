@@ -454,6 +454,18 @@ function App() {
                     />
                   )}
 
+                  <ActivitiesListCard
+                    activities={activities}
+                    onEditActivity={startEditActivity}
+                    onDeleteActivity={deleteActivity}
+                  />
+
+                  <SuggestionsCard suggestions={suggestions} />
+                </Stack>
+              </Grid>
+
+              <Grid size={{ xs: 12, lg: 4 }}>
+                <Stack spacing={3}>
                   <Box
                     sx={{ display: "flex", justifyContent: "center", mb: 2 }}
                   >
@@ -476,18 +488,6 @@ function App() {
                     </Button>
                   </Box>
 
-                  <ActivitiesListCard
-                    activities={activities}
-                    onEditActivity={startEditActivity}
-                    onDeleteActivity={deleteActivity}
-                  />
-
-                  <SuggestionsCard suggestions={suggestions} />
-                </Stack>
-              </Grid>
-
-              <Grid size={{ xs: 12, lg: 4 }}>
-                <Stack spacing={3}>
                   <Card sx={{ borderRadius: 2 }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography
