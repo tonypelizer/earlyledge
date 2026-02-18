@@ -100,6 +100,26 @@ class ActivitySerializer(serializers.ModelSerializer):
         # Reload the activity with skills to ensure they're in the response
         return Activity.objects.prefetch_related("skills").get(pk=activity.pk)
 
+    def update(self, instance, validated_data):
+        explicit_skill_ids = validated_data.pop("skill_ids", None)
+        
+        # Update basic fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update skills
+        if explicit_skill_ids is not None and len(explicit_skill_ids) > 0:
+            skills = SkillCategory.objects.filter(id__in=explicit_skill_ids)
+            instance.skills.set(skills)
+        else:
+            source_text = f"{instance.title} {instance.notes}"
+            mapped = auto_map_skills(source_text)
+            instance.skills.set(mapped)
+
+        # Reload the activity with skills to ensure they're in the response
+        return Activity.objects.prefetch_related("skills").get(pk=instance.pk)
+
 
 class SuggestionSerializer(serializers.ModelSerializer):
     skill_name = serializers.CharField(source="skill.name", read_only=True)

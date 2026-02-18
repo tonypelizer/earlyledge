@@ -51,6 +51,9 @@ function App() {
   const [childDateOfBirthInput, setChildDateOfBirthInput] = useState("");
   const [editingChildId, setEditingChildId] = useState<number | null>(null);
 
+  const [editingActivityId, setEditingActivityId] = useState<number | null>(
+    null,
+  );
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [durationMinutes, setDurationMinutes] = useState<number | "">("");
@@ -270,11 +273,73 @@ function App() {
       setTitle("");
       setNotes("");
       setDurationMinutes("");
+      setActivityDate(dayjs().format("YYYY-MM-DD"));
       setSelectedSkillIds([]);
 
       await refreshChildData(Number(selectedChildId));
     } catch {
       setError("Could not save activity.");
+    }
+  };
+
+  const startEditActivity = (activity: Activity) => {
+    setEditingActivityId(activity.id);
+    setTitle(activity.title);
+    setNotes(activity.notes);
+    setDurationMinutes(activity.duration_minutes ?? "");
+    setActivityDate(activity.activity_date);
+    setSelectedSkillIds(activity.skills.map((s) => s.id));
+  };
+
+  const cancelEditActivity = () => {
+    setEditingActivityId(null);
+    setTitle("");
+    setNotes("");
+    setDurationMinutes("");
+    setActivityDate(dayjs().format("YYYY-MM-DD"));
+    setSelectedSkillIds([]);
+  };
+
+  const updateActivity = async () => {
+    if (!editingActivityId || !title) {
+      return;
+    }
+
+    setError("");
+    try {
+      await api.patch(`/activities/${editingActivityId}/`, {
+        title,
+        notes,
+        duration_minutes: durationMinutes ? Number(durationMinutes) : null,
+        activity_date: activityDate,
+        skill_ids: selectedSkillIds,
+      });
+
+      setEditingActivityId(null);
+      setTitle("");
+      setNotes("");
+      setDurationMinutes("");
+      setActivityDate(dayjs().format("YYYY-MM-DD"));
+      setSelectedSkillIds([]);
+
+      if (selectedChildId) {
+        await refreshChildData(Number(selectedChildId));
+      }
+    } catch {
+      setError("Could not update activity.");
+    }
+  };
+
+  const deleteActivity = async (activityId: number) => {
+    setError("");
+    try {
+      await api.delete(`/activities/${activityId}/`);
+
+      if (selectedChildId) {
+        await refreshChildData(Number(selectedChildId));
+      }
+    } catch {
+      setError("Could not delete activity.");
     }
   };
 
@@ -364,15 +429,23 @@ function App() {
                     activityDate={activityDate}
                     selectedSkillIds={selectedSkillIds}
                     skills={skills}
+                    isEditing={editingActivityId !== null}
                     onTitleChange={setTitle}
                     onNotesChange={setNotes}
                     onDurationChange={setDurationMinutes}
                     onActivityDateChange={setActivityDate}
                     onSkillToggle={onSkillToggle}
-                    onSaveActivity={addActivity}
+                    onSaveActivity={
+                      editingActivityId !== null ? updateActivity : addActivity
+                    }
+                    onCancelEdit={cancelEditActivity}
                   />
 
-                  <ActivitiesListCard activities={activities} />
+                  <ActivitiesListCard
+                    activities={activities}
+                    onEditActivity={startEditActivity}
+                    onDeleteActivity={deleteActivity}
+                  />
 
                   <SuggestionsCard suggestions={suggestions} />
                 </Stack>

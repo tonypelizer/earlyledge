@@ -3,19 +3,29 @@ import {
   Card,
   CardContent,
   Divider,
+  IconButton,
   List,
   ListItem,
   ListItemText,
+  Stack,
   Typography,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 import type { Activity } from "../types";
 
 type ActivitiesListCardProps = {
   activities: Activity[];
+  onEditActivity: (activity: Activity) => void;
+  onDeleteActivity: (activityId: number) => void;
 };
 
-export function ActivitiesListCard({ activities }: ActivitiesListCardProps) {
+export function ActivitiesListCard({
+  activities,
+  onEditActivity,
+  onDeleteActivity,
+}: ActivitiesListCardProps) {
   return (
     <Card sx={{ borderRadius: 2 }}>
       <CardContent sx={{ p: 3 }}>
@@ -30,7 +40,28 @@ export function ActivitiesListCard({ activities }: ActivitiesListCardProps) {
         <List sx={{ p: 0 }}>
           {activities.slice(0, 6).map((activity, index) => (
             <Box key={activity.id}>
-              <ListItem disableGutters sx={{ py: 1.5, px: 0 }}>
+              <ListItem
+                disableGutters
+                sx={{ py: 1.5, px: 0 }}
+                secondaryAction={
+                  <Stack direction="row" spacing={0.5}>
+                    <IconButton
+                      edge="end"
+                      size="small"
+                      onClick={() => onEditActivity(activity)}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      size="small"
+                      onClick={() => onDeleteActivity(activity.id)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                }
+              >
                 <ListItemText
                   primary={activity.title}
                   secondary={`${activity.skills.map((skill) => skill.name).join(", ") || "Unmapped"} | ${activity.duration_minutes ?? 0} min | ${activity.activity_date}`}

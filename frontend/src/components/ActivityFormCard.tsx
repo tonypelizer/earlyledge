@@ -20,12 +20,14 @@ type ActivityFormCardProps = {
   activityDate: string;
   selectedSkillIds: number[];
   skills: Skill[];
+  isEditing?: boolean;
   onTitleChange: (value: string) => void;
   onNotesChange: (value: string) => void;
   onDurationChange: (value: number | "") => void;
   onActivityDateChange: (value: string) => void;
   onSkillToggle: (skillId: number, isSelected: boolean) => void;
   onSaveActivity: () => void;
+  onCancelEdit?: () => void;
 };
 
 export function ActivityFormCard({
@@ -35,12 +37,14 @@ export function ActivityFormCard({
   activityDate,
   selectedSkillIds,
   skills,
+  isEditing = false,
   onTitleChange,
   onNotesChange,
   onDurationChange,
   onActivityDateChange,
   onSkillToggle,
   onSaveActivity,
+  onCancelEdit,
 }: ActivityFormCardProps) {
   return (
     <Card sx={{ borderRadius: 2 }}>
@@ -63,7 +67,7 @@ export function ActivityFormCard({
               </Typography>
             </Box>
             <Typography variant="h6" fontWeight={700} color="#2d3748">
-              Add an Activity
+              {isEditing ? "Edit Activity" : "Add an Activity"}
             </Typography>
           </Stack>
           <TextField
@@ -119,9 +123,16 @@ export function ActivityFormCard({
               ))}
             </Grid>
           </Box>
-          <Button variant="contained" onClick={onSaveActivity}>
-            Save activity
-          </Button>
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" onClick={onSaveActivity} fullWidth>
+              {isEditing ? "Update activity" : "Save activity"}
+            </Button>
+            {isEditing && onCancelEdit && (
+              <Button variant="outlined" onClick={onCancelEdit} fullWidth>
+                Cancel
+              </Button>
+            )}
+          </Stack>
         </Stack>
       </CardContent>
     </Card>
