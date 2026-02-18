@@ -97,7 +97,8 @@ class ActivitySerializer(serializers.ModelSerializer):
             mapped = auto_map_skills(source_text)
             activity.skills.set(mapped)
 
-        return activity
+        # Reload the activity with skills to ensure they're in the response
+        return Activity.objects.prefetch_related("skills").get(pk=activity.pk)
 
 
 class SuggestionSerializer(serializers.ModelSerializer):
