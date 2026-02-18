@@ -1,0 +1,31 @@
+# Git
+.git
+.gitignore
+
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.pytest_cache
+**/.mypy_cache
+
+# Django
+backend/db.sqlite3
+backend/staticfiles
+backend/frontend_build
+
+# Node
+frontend/node_modules
+frontend/dist
+
+# Env files (never bake secrets into the image)
+.env
+**/.env
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Docs / misc
+docs/
+README.md

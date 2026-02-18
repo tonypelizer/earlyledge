@@ -1,5 +1,8 @@
 asgiref==3.11.1
 brotli==1.2.0
+gunicorn
+python-dotenv
+whitenoise
 cffi==2.0.0
 cssselect2==0.9.0
 dj-database-url==3.1.1
