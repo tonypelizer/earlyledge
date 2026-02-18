@@ -87,7 +87,9 @@ export function AppTopBar({
       sx={{
         bgcolor: "#fcf9f7",
         borderRadius: 0,
-        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        position: "relative",
+        zIndex: 10,
       }}
     >
       <Container maxWidth="xl">

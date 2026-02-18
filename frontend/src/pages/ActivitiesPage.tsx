@@ -180,9 +180,12 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
   if (!selectedChild) {
     return (
       <Box
-        sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: { xs: 2, md: 3 } }}
+        sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}
       >
-        <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+        <Container
+          maxWidth="xl"
+          sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
+        >
           <Typography variant="h5" color="text.secondary" textAlign="center">
             Please select a child to see their activities.
           </Typography>
@@ -192,8 +195,11 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
   }
 
   return (
-    <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: { xs: 2, md: 3 } }}>
-      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+    <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}>
+      <Container
+        maxWidth="xl"
+        sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
+      >
         <Stack spacing={4}>
           {error && (
             <Alert severity="error" onClose={() => setError("")}>

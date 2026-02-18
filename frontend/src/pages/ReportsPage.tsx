@@ -116,9 +116,12 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
   if (!selectedChild) {
     return (
       <Box
-        sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: { xs: 2, md: 3 } }}
+        sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}
       >
-        <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+        <Container
+          maxWidth="xl"
+          sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
+        >
           <Typography variant="h5" color="text.secondary" textAlign="center">
             Please select a child to see reports.
           </Typography>
@@ -130,9 +133,12 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
   if (loading) {
     return (
       <Box
-        sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: { xs: 2, md: 3 } }}
+        sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}
       >
-        <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+        <Container
+          maxWidth="xl"
+          sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
+        >
           <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
             <CircularProgress />
           </Box>
@@ -142,8 +148,11 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
   }
 
   return (
-    <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: { xs: 2, md: 3 } }}>
-      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 3 } }}>
+    <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}>
+      <Container
+        maxWidth="xl"
+        sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
+      >
         <Stack spacing={4}>
           {error && (
             <Alert severity="error" onClose={() => setError("")}>
