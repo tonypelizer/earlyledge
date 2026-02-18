@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url
 
 from django.core.management.utils import get_random_secret_key
 
@@ -61,24 +62,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# PostgreSQL config (enable later when ready)
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'earlyledge'),
-#         'USER': os.getenv('POSTGRES_USER', 'earlyledge'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'earlyledge'),
-#         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
-#         'PORT': int(os.getenv('POSTGRES_PORT', 5432)),
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True,
+    )
+}
 
 
 # Password validation

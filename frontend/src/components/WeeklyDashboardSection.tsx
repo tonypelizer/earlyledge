@@ -8,7 +8,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, Tooltip } from "recharts";
 
 import type { WeeklyDashboard } from "../types";
 
