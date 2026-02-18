@@ -290,59 +290,61 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                         <Box sx={{ width: "100%", height: 300 }}>
                           {reportsData?.monthly_data &&
                           reportsData.monthly_data.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                              <AreaChart data={reportsData.monthly_data}>
-                                <defs>
-                                  {Object.entries(skillColors).map(
-                                    ([skill, color]) => (
-                                      <linearGradient
-                                        key={skill}
-                                        id={`color${skill.replace(/[^a-zA-Z]/g, "")}`}
-                                        x1="0"
-                                        y1="0"
-                                        x2="0"
-                                        y2="1"
-                                      >
-                                        <stop
-                                          offset="5%"
-                                          stopColor={color}
-                                          stopOpacity={0.8}
-                                        />
-                                        <stop
-                                          offset="95%"
-                                          stopColor={color}
-                                          stopOpacity={0.3}
-                                        />
-                                      </linearGradient>
-                                    ),
-                                  )}
-                                </defs>
-                                <CartesianGrid
-                                  strokeDasharray="3 3"
-                                  stroke="#e0e0e0"
+                            <AreaChart
+                              width={800}
+                              height={300}
+                              data={reportsData.monthly_data}
+                            >
+                              <defs>
+                                {Object.entries(skillColors).map(
+                                  ([skill, color]) => (
+                                    <linearGradient
+                                      key={skill}
+                                      id={`color${skill.replace(/[^a-zA-Z]/g, "")}`}
+                                      x1="0"
+                                      y1="0"
+                                      x2="0"
+                                      y2="1"
+                                    >
+                                      <stop
+                                        offset="5%"
+                                        stopColor={color}
+                                        stopOpacity={0.8}
+                                      />
+                                      <stop
+                                        offset="95%"
+                                        stopColor={color}
+                                        stopOpacity={0.3}
+                                      />
+                                    </linearGradient>
+                                  ),
+                                )}
+                              </defs>
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                stroke="#e0e0e0"
+                              />
+                              <XAxis
+                                dataKey="month"
+                                tick={{ fill: "#718096", fontSize: 12 }}
+                                tickLine={false}
+                              />
+                              <YAxis
+                                tick={{ fill: "#718096", fontSize: 12 }}
+                                tickLine={false}
+                              />
+                              <Tooltip />
+                              {Object.keys(skillColors).map((skill) => (
+                                <Area
+                                  key={skill}
+                                  type="monotone"
+                                  dataKey={skill}
+                                  stackId="1"
+                                  stroke={skillColors[skill]}
+                                  fill={`url(#color${skill.replace(/[^a-zA-Z]/g, "")})`}
                                 />
-                                <XAxis
-                                  dataKey="month"
-                                  tick={{ fill: "#718096", fontSize: 12 }}
-                                  tickLine={false}
-                                />
-                                <YAxis
-                                  tick={{ fill: "#718096", fontSize: 12 }}
-                                  tickLine={false}
-                                />
-                                <Tooltip />
-                                {Object.keys(skillColors).map((skill) => (
-                                  <Area
-                                    key={skill}
-                                    type="monotone"
-                                    dataKey={skill}
-                                    stackId="1"
-                                    stroke={skillColors[skill]}
-                                    fill={`url(#color${skill.replace(/[^a-zA-Z]/g, "")})`}
-                                  />
-                                ))}
-                              </AreaChart>
-                            </ResponsiveContainer>
+                              ))}
+                            </AreaChart>
                           ) : (
                             <Box
                               sx={{
