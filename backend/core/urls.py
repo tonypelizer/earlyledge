@@ -5,6 +5,7 @@ from core.views import (
     ActivityViewSet,
     ChildViewSet,
     MonthlySnapshotPdfView,
+	ReportsView,
     SignupView,
     SkillAnalysisView,
     SkillCategoryListView,
@@ -22,6 +23,7 @@ urlpatterns = [
     path("dashboard/weekly/", WeeklyDashboardView.as_view(), name="weekly-dashboard"),
     path("suggestions/", SuggestionListView.as_view(), name="suggestions"),
     path("skill-analysis/", SkillAnalysisView.as_view(), name="skill-analysis"),
+    path("reports/", ReportsView.as_view(), name="reports"),
     path("reports/monthly/", MonthlySnapshotPdfView.as_view(), name="monthly-report"),
 ]
 

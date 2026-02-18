@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import {
   Alert,
@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Container,
   Grid,
   Stack,
@@ -24,9 +25,6 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  Pie,
-  PieChart,
-  Cell,
 } from "recharts";
 
 import { api } from "../api";
@@ -38,100 +36,58 @@ type ReportsPageProps = {
   selectedChild?: Child;
 };
 
-type MonthlyData = {
-  month: string;
-  activityCount: number;
-  totalMinutes: number;
-  highlight: string;
-  skillBreakdown: { name: string; value: number; color: string }[];
+type ReportsData = {
+  total_activities: number;
+  total_hours: number;
+  total_minutes: number;
+  activities_per_week: number;
+  skill_distribution: [string, number][];
+  growth_highlights: string[];
+  monthly_data: { month: string; [skill: string]: number | string }[];
+  time_range: string;
 };
 
-const skillColors = {
+const skillColors: { [key: string]: string } = {
   Literacy: "#5b9bd5",
-  "Math & Logic": "#f2bf52",
+  Numeracy: "#f2bf52",
   Creativity: "#f08452",
-  Movement: "#67b587",
-  "Life Skills": "#8c7ad9",
+  Physical: "#67b587",
+  "Practical Life": "#8c7ad9",
+  "Social/Emotional": "#e56399",
+  "Critical Thinking": "#9c88c4",
 };
-
-// Mock data for the area chart
-const chartData = [
-  {
-    month: "April",
-    Literacy: 10,
-    "Math & Logic": 8,
-    Creativity: 5,
-    Movement: 7,
-    "Life Skills": 4,
-  },
-  {
-    month: "May 2026",
-    Literacy: 15,
-    "Math & Logic": 12,
-    Creativity: 8,
-    Movement: 10,
-    "Life Skills": 6,
-  },
-  {
-    month: "June 2026",
-    Literacy: 22,
-    "Math & Logic": 18,
-    Creativity: 12,
-    Movement: 15,
-    "Life Skills": 9,
-  },
-];
-
-// Mock monthly summaries
-const monthlySummaries: MonthlyData[] = [
-  {
-    month: "March 2026",
-    activityCount: 18,
-    totalMinutes: 252,
-    highlight: '"Read stories at the beach."',
-    skillBreakdown: [
-      { name: "Literacy", value: 8, color: "#5b9bd5" },
-      { name: "Movement", value: 5, color: "#67b587" },
-      { name: "Creativity", value: 3, color: "#f08452" },
-      { name: "Life Skills", value: 2, color: "#8c7ad9" },
-    ],
-  },
-  {
-    month: "April 2026",
-    activityCount: 19,
-    totalMinutes: 270,
-    highlight: '"Built a cardboard city together."',
-    skillBreakdown: [
-      { name: "Creativity", value: 7, color: "#f08452" },
-      { name: "Math & Logic", value: 6, color: "#f2bf52" },
-      { name: "Literacy", value: 4, color: "#5b9bd5" },
-      { name: "Movement", value: 2, color: "#67b587" },
-    ],
-  },
-  {
-    month: "May 2026",
-    activityCount: 11,
-    totalMinutes: 165,
-    highlight: '"Practice counting during snacktime."',
-    skillBreakdown: [
-      { name: "Math & Logic", value: 5, color: "#f2bf52" },
-      { name: "Movement", value: 3, color: "#67b587" },
-      { name: "Literacy", value: 2, color: "#5b9bd5" },
-      { name: "Life Skills", value: 1, color: "#8c7ad9" },
-    ],
-  },
-];
-
-const growthHighlights = [
-  "Literacy activities have been thriving the last three months",
-  "Balanced exploration across 4 skill areas",
-];
 
 export function ReportsPage({ selectedChild }: ReportsPageProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>("last3months");
   const [month, setMonth] = useState(dayjs().format("YYYY-MM"));
   const [error, setError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [reportsData, setReportsData] = useState<ReportsData | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch reports data when child or time range changes
+  useEffect(() => {
+    if (selectedChild) {
+      fetchReportsData();
+    }
+  }, [selectedChild, timeRange]);
+
+  const fetchReportsData = async () => {
+    if (!selectedChild) return;
+
+    setLoading(true);
+    setError("");
+    try {
+      const response = await api.get(
+        `/reports/?child_id=${selectedChild.id}&time_range=${timeRange}`,
+      );
+      setReportsData(response.data);
+    } catch {
+      setError("Could not load reports data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const downloadSnapshot = async () => {
     if (!selectedChild) {
@@ -156,6 +112,30 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
       setIsGenerating(false);
     }
   };
+
+  if (!selectedChild) {
+    return (
+      <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="xl">
+          <Typography variant="h5" color="text.secondary" textAlign="center">
+            Please select a child to see reports.
+          </Typography>
+        </Container>
+      </Box>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="xl">
+          <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+            <CircularProgress />
+          </Box>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: 4 }}>
@@ -237,7 +217,7 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                               fontWeight={700}
                               color="#2d3748"
                             >
-                              52{" "}
+                              {reportsData?.total_activities || 0}{" "}
                               <Typography
                                 component="span"
                                 variant="body2"
@@ -254,7 +234,7 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                               fontWeight={700}
                               color="#2d3748"
                             >
-                              34{" "}
+                              {reportsData?.total_hours || 0}{" "}
                               <Typography
                                 component="span"
                                 variant="body2"
@@ -263,7 +243,7 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                               >
                                 hrs
                               </Typography>{" "}
-                              20{" "}
+                              {reportsData?.total_minutes || 0}{" "}
                               <Typography
                                 component="span"
                                 variant="body2"
@@ -280,7 +260,7 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                               fontWeight={700}
                               color="#2d3748"
                             >
-                              4{" "}
+                              {reportsData?.activities_per_week || 0}{" "}
                               <Typography
                                 component="span"
                                 variant="body2"
@@ -295,151 +275,171 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
 
                         {/* Area Chart */}
                         <Box sx={{ width: "100%", height: 300 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData}>
-                              <defs>
-                                <linearGradient
-                                  id="colorLiteracy"
-                                  x1="0"
-                                  y1="0"
-                                  x2="0"
-                                  y2="1"
-                                >
-                                  <stop
-                                    offset="5%"
-                                    stopColor="#5b9bd5"
-                                    stopOpacity={0.8}
-                                  />
-                                  <stop
-                                    offset="95%"
-                                    stopColor="#5b9bd5"
-                                    stopOpacity={0.3}
-                                  />
-                                </linearGradient>
-                                <linearGradient
-                                  id="colorMath"
-                                  x1="0"
-                                  y1="0"
-                                  x2="0"
-                                  y2="1"
-                                >
-                                  <stop
-                                    offset="5%"
-                                    stopColor="#f2bf52"
-                                    stopOpacity={0.8}
-                                  />
-                                  <stop
-                                    offset="95%"
-                                    stopColor="#f2bf52"
-                                    stopOpacity={0.3}
-                                  />
-                                </linearGradient>
-                                <linearGradient
-                                  id="colorCreativity"
-                                  x1="0"
-                                  y1="0"
-                                  x2="0"
-                                  y2="1"
-                                >
-                                  <stop
-                                    offset="5%"
-                                    stopColor="#f08452"
-                                    stopOpacity={0.8}
-                                  />
-                                  <stop
-                                    offset="95%"
-                                    stopColor="#f08452"
-                                    stopOpacity={0.3}
-                                  />
-                                </linearGradient>
-                                <linearGradient
-                                  id="colorMovement"
-                                  x1="0"
-                                  y1="0"
-                                  x2="0"
-                                  y2="1"
-                                >
-                                  <stop
-                                    offset="5%"
-                                    stopColor="#67b587"
-                                    stopOpacity={0.8}
-                                  />
-                                  <stop
-                                    offset="95%"
-                                    stopColor="#67b587"
-                                    stopOpacity={0.3}
-                                  />
-                                </linearGradient>
-                                <linearGradient
-                                  id="colorLife"
-                                  x1="0"
-                                  y1="0"
-                                  x2="0"
-                                  y2="1"
-                                >
-                                  <stop
-                                    offset="5%"
-                                    stopColor="#8c7ad9"
-                                    stopOpacity={0.8}
-                                  />
-                                  <stop
-                                    offset="95%"
-                                    stopColor="#8c7ad9"
-                                    stopOpacity={0.3}
-                                  />
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="#e0e0e0"
-                              />
-                              <XAxis
-                                dataKey="month"
-                                tick={{ fill: "#718096", fontSize: 12 }}
-                                tickLine={false}
-                              />
-                              <YAxis
-                                tick={{ fill: "#718096", fontSize: 12 }}
-                                tickLine={false}
-                              />
-                              <Tooltip />
-                              <Area
-                                type="monotone"
-                                dataKey="Life Skills"
-                                stackId="1"
-                                stroke="#8c7ad9"
-                                fill="url(#colorLife)"
-                              />
-                              <Area
-                                type="monotone"
-                                dataKey="Movement"
-                                stackId="1"
-                                stroke="#67b587"
-                                fill="url(#colorMovement)"
-                              />
-                              <Area
-                                type="monotone"
-                                dataKey="Creativity"
-                                stackId="1"
-                                stroke="#f08452"
-                                fill="url(#colorCreativity)"
-                              />
-                              <Area
-                                type="monotone"
-                                dataKey="Math & Logic"
-                                stackId="1"
-                                stroke="#f2bf52"
-                                fill="url(#colorMath)"
-                              />
-                              <Area
-                                type="monotone"
-                                dataKey="Literacy"
-                                stackId="1"
-                                stroke="#5b9bd5"
-                                fill="url(#colorLiteracy)"
-                              />
-                            </AreaChart>
-                          </ResponsiveContainer>
+                          {reportsData?.monthly_data &&
+                          reportsData.monthly_data.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={reportsData.monthly_data}>
+                                <defs>
+                                  <linearGradient
+                                    id="colorLiteracy"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                  >
+                                    <stop
+                                      offset="5%"
+                                      stopColor="#5b9bd5"
+                                      stopOpacity={0.8}
+                                    />
+                                    <stop
+                                      offset="95%"
+                                      stopColor="#5b9bd5"
+                                      stopOpacity={0.3}
+                                    />
+                                  </linearGradient>
+                                  <linearGradient
+                                    id="colorMath"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                  >
+                                    <stop
+                                      offset="5%"
+                                      stopColor="#f2bf52"
+                                      stopOpacity={0.8}
+                                    />
+                                    <stop
+                                      offset="95%"
+                                      stopColor="#f2bf52"
+                                      stopOpacity={0.3}
+                                    />
+                                  </linearGradient>
+                                  <linearGradient
+                                    id="colorCreativity"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                  >
+                                    <stop
+                                      offset="5%"
+                                      stopColor="#f08452"
+                                      stopOpacity={0.8}
+                                    />
+                                    <stop
+                                      offset="95%"
+                                      stopColor="#f08452"
+                                      stopOpacity={0.3}
+                                    />
+                                  </linearGradient>
+                                  <linearGradient
+                                    id="colorMovement"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                  >
+                                    <stop
+                                      offset="5%"
+                                      stopColor="#67b587"
+                                      stopOpacity={0.8}
+                                    />
+                                    <stop
+                                      offset="95%"
+                                      stopColor="#67b587"
+                                      stopOpacity={0.3}
+                                    />
+                                  </linearGradient>
+                                  <linearGradient
+                                    id="colorLife"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                  >
+                                    <stop
+                                      offset="5%"
+                                      stopColor="#8c7ad9"
+                                      stopOpacity={0.8}
+                                    />
+                                    <stop
+                                      offset="95%"
+                                      stopColor="#8c7ad9"
+                                      stopOpacity={0.3}
+                                    />
+                                  </linearGradient>
+                                </defs>
+                                <CartesianGrid
+                                  strokeDasharray="3 3"
+                                  stroke="#e0e0e0"
+                                />
+                                <XAxis
+                                  dataKey="month"
+                                  tick={{ fill: "#718096", fontSize: 12 }}
+                                  tickLine={false}
+                                />
+                                <YAxis
+                                  tick={{ fill: "#718096", fontSize: 12 }}
+                                  tickLine={false}
+                                />
+                                <Tooltip />
+                                <Area
+                                  type="monotone"
+                                  dataKey="Life Skills"
+                                  stackId="1"
+                                  stroke="#8c7ad9"
+                                  fill="url(#colorLife)"
+                                />
+                                <Area
+                                  type="monotone"
+                                  dataKey="Movement"
+                                  stackId="1"
+                                  stroke="#67b587"
+                                  fill="url(#colorMovement)"
+                                />
+                                <Area
+                                  type="monotone"
+                                  dataKey="Creativity"
+                                  stackId="1"
+                                  stroke="#f08452"
+                                  fill="url(#colorCreativity)"
+                                />
+                                <Area
+                                  type="monotone"
+                                  dataKey="Math & Logic"
+                                  stackId="1"
+                                  stroke="#f2bf52"
+                                  fill="url(#colorMath)"
+                                />
+                                <Area
+                                  type="monotone"
+                                  dataKey="Literacy"
+                                  stackId="1"
+                                  stroke="#5b9bd5"
+                                  fill="url(#colorLiteracy)"
+                                />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          ) : (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: "100%",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                No activity data available for the selected time
+                                range.
+                              </Typography>
+                            </Box>
+                          )}
                         </Box>
 
                         {/* Legend */}
@@ -494,132 +494,16 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                   </Stack>
 
                   <Grid container spacing={3}>
-                    {monthlySummaries.map((summary) => (
-                      <Grid size={{ xs: 12, md: 4 }} key={summary.month}>
-                        <Card sx={{ borderRadius: 2, height: "100%" }}>
-                          <CardContent sx={{ p: 3 }}>
-                            <Stack spacing={2}>
-                              <Typography
-                                variant="h6"
-                                fontWeight={700}
-                                color="#2d3748"
-                              >
-                                {summary.month}
-                              </Typography>
-
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 2,
-                                }}
-                              >
-                                {/* Mini Pie Chart */}
-                                <Box sx={{ width: 80, height: 80 }}>
-                                  <ResponsiveContainer
-                                    width="100%"
-                                    height="100%"
-                                  >
-                                    <PieChart>
-                                      <Pie
-                                        data={summary.skillBreakdown}
-                                        dataKey="value"
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={40}
-                                        innerRadius={0}
-                                        stroke="none"
-                                      >
-                                        {summary.skillBreakdown.map(
-                                          (entry, index) => (
-                                            <Cell
-                                              key={`cell-${index}`}
-                                              fill={entry.color}
-                                            />
-                                          ),
-                                        )}
-                                      </Pie>
-                                    </PieChart>
-                                  </ResponsiveContainer>
-                                </Box>
-
-                                <Box>
-                                  <Typography
-                                    variant="h6"
-                                    fontWeight={700}
-                                    color="#2d3748"
-                                  >
-                                    {summary.activityCount} activities
-                                  </Typography>
-                                  <Stack
-                                    direction="row"
-                                    spacing={0.5}
-                                    alignItems="center"
-                                  >
-                                    <Box
-                                      component="span"
-                                      sx={{
-                                        width: 16,
-                                        height: 16,
-                                        borderRadius: "50%",
-                                        border: "1.5px solid",
-                                        borderColor: "text.secondary",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                      }}
-                                    >
-                                      <Box
-                                        component="span"
-                                        sx={{
-                                          width: 4,
-                                          height: 6,
-                                          borderRight: "1.5px solid",
-                                          borderBottom: "1.5px solid",
-                                          borderColor: "text.secondary",
-                                          transform:
-                                            "rotate(45deg) translateY(-1px)",
-                                        }}
-                                      />
-                                    </Box>
-                                    <Typography
-                                      variant="body2"
-                                      color="text.secondary"
-                                    >
-                                      {Math.floor(summary.totalMinutes / 60)}-
-                                      {Math.floor(summary.totalMinutes / 60) +
-                                        1}
-                                      {summary.totalMinutes % 60 > 30
-                                        ? "½"
-                                        : ""}
-                                      °
-                                    </Typography>
-                                  </Stack>
-                                </Box>
-                              </Box>
-
-                              <Box>
-                                <Typography
-                                  variant="body2"
-                                  fontWeight={600}
-                                  color="#2d3748"
-                                >
-                                  Highlight:{" "}
-                                  <Typography
-                                    component="span"
-                                    variant="body2"
-                                    color="text.secondary"
-                                    fontWeight={400}
-                                  >
-                                    {summary.highlight}
-                                  </Typography>
-                                </Typography>
-                              </Box>
-                            </Stack>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
+                    <Grid size={12}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        textAlign="center"
+                      >
+                        Detailed monthly breakdowns coming soon! For now, use
+                        the chart above and download PDF reports.
+                      </Typography>
+                    </Grid>
                   </Grid>
                 </Box>
               </Stack>
@@ -753,25 +637,38 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                       Growth Highlights
                     </Typography>
                     <Stack spacing={1.5}>
-                      {growthHighlights.map((highlight, index) => (
-                        <Stack
-                          key={index}
-                          direction="row"
-                          spacing={1}
-                          alignItems="flex-start"
-                        >
-                          <Typography
-                            variant="body2"
-                            color="primary"
-                            sx={{ mt: 0.25 }}
-                          >
-                            •
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {highlight}
-                          </Typography>
-                        </Stack>
-                      ))}
+                      {reportsData?.growth_highlights &&
+                      reportsData.growth_highlights.length > 0 ? (
+                        reportsData.growth_highlights.map(
+                          (highlight, index) => (
+                            <Stack
+                              key={index}
+                              direction="row"
+                              spacing={1}
+                              alignItems="flex-start"
+                            >
+                              <Typography
+                                variant="body2"
+                                color="primary"
+                                sx={{ mt: 0.25 }}
+                              >
+                                •
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {highlight}
+                              </Typography>
+                            </Stack>
+                          ),
+                        )
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          Start logging activities to see growth patterns and
+                          insights!
+                        </Typography>
+                      )}
                     </Stack>
                   </CardContent>
                 </Card>

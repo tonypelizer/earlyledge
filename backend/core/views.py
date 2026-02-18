@@ -281,3 +281,99 @@ class SkillAnalysisView(APIView):
 			"analysis_text": analysis_text,
 			"total_recent_activities": total_activities
 		})
+
+
+class ReportsView(APIView):
+	permission_classes = [permissions.IsAuthenticated]
+
+	def get(self, request):
+		child_id = request.query_params.get("child_id")
+		time_range = request.query_params.get("time_range", "last3months")
+		
+		if not child_id:
+			return Response({"error": "child_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+		child = get_object_or_404(Child, id=child_id, user=request.user)
+		
+		# Calculate date ranges
+		today = date.today()
+		if time_range == "last30days":
+			start_date = today - timedelta(days=30)
+		elif time_range == "last3months":
+			start_date = today - timedelta(days=90)
+		elif time_range == "thisyear":
+			start_date = date(today.year, 1, 1)
+		else:
+			start_date = today - timedelta(days=90)  # default
+		
+		# Get activities in range
+		activities = Activity.objects.filter(
+			child=child,
+			activity_date__gte=start_date,
+			activity_date__lte=today
+		).prefetch_related('skills')
+		
+		# Calculate total stats
+		total_activities = activities.count()
+		total_minutes = sum(a.duration_minutes or 0 for a in activities)
+		total_hours = total_minutes // 60
+		remaining_minutes = total_minutes % 60
+		
+		# Calculate activities per week
+		days_in_range = (today - start_date).days
+		weeks_in_range = max(days_in_range / 7, 1)
+		activities_per_week = round(total_activities / weeks_in_range, 1)
+		
+		# Get skill distribution
+		skill_counts = {}
+		for activity in activities:
+			for skill in activity.skills.all():
+				skill_counts[skill.name] = skill_counts.get(skill.name, 0) + 1
+		
+		# Sort skills by count
+		sorted_skills = sorted(skill_counts.items(), key=lambda x: x[1], reverse=True)
+		
+		# Generate growth highlights
+		growth_highlights = []
+		if sorted_skills:
+			top_skill = sorted_skills[0][0]
+			growth_highlights.append(f"{top_skill} activities have been thriving recently")
+		
+		if len(sorted_skills) >= 3:
+			growth_highlights.append(f"Balanced exploration across {len(sorted_skills)} skill areas")
+		elif len(sorted_skills) == 0:
+			growth_highlights.append("Ready to start exploring new activities together!")
+		
+		# Monthly breakdown for chart
+		monthly_data = []
+		current_month = start_date.replace(day=1)
+		
+		while current_month <= today.replace(day=1):
+			month_end = (current_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+			month_activities = activities.filter(
+				activity_date__gte=current_month,
+				activity_date__lte=min(month_end, today)
+			)
+			
+			month_skill_counts = {}
+			for activity in month_activities:
+				for skill in activity.skills.all():
+					month_skill_counts[skill.name] = month_skill_counts.get(skill.name, 0) + 1
+			
+			monthly_data.append({
+				"month": current_month.strftime("%B %Y"),
+				**month_skill_counts
+			})
+			
+			current_month = (current_month + timedelta(days=32)).replace(day=1)
+		
+		return Response({
+			"total_activities": total_activities,
+			"total_hours": total_hours,
+			"total_minutes": remaining_minutes,
+			"activities_per_week": activities_per_week,
+			"skill_distribution": sorted_skills,
+			"growth_highlights": growth_highlights,
+			"monthly_data": monthly_data,
+			"time_range": time_range
+		})
