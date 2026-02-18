@@ -17,7 +17,6 @@ import { ActivitiesListCard } from "./components/ActivitiesListCard";
 import { ActivityModal } from "./components/ActivityModal";
 import { AppTopBar } from "./components/AppTopBar";
 import { AuthCard } from "./components/AuthCard";
-import { ChildrenPanel } from "./components/ChildrenPanel";
 import { GentleNudgesCard } from "./components/GentleNudgesCard";
 import { SuggestionsCard } from "./components/SuggestionsCard";
 import { WeeklyDashboardSection } from "./components/WeeklyDashboardSection";
