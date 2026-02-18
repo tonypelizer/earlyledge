@@ -10,7 +10,11 @@ import {
   Grid,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 
 import { api, setAuthToken } from "./api";
 import { ActivitiesListCard } from "./components/ActivitiesListCard";
@@ -36,6 +40,9 @@ type AuthMode = "login" | "signup";
 type PageType = "home" | "suggestions" | "reports" | "children" | "activities";
 
 function App() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+
   const [currentPage, setCurrentPage] = useState<PageType>("home");
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
@@ -457,6 +464,50 @@ function App() {
                     />
                   )}
 
+                  {/* Add Activity and Find Activity buttons on mobile */}
+                  {isMobile && (
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        startIcon={<AddIcon />}
+                        onClick={openAddActivityModal}
+                        sx={{
+                          flex: 1,
+                          py: 1.5,
+                          borderRadius: 2,
+                          fontWeight: 600,
+                          bgcolor: "#67b587",
+                          "&:hover": {
+                            bgcolor: "#5a9a74",
+                          },
+                        }}
+                      >
+                        Add Activity
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="large"
+                        startIcon={<SearchIcon />}
+                        onClick={() => setCurrentPage("suggestions")}
+                        sx={{
+                          flex: 1,
+                          py: 1.5,
+                          borderRadius: 2,
+                          fontWeight: 600,
+                          borderColor: "#67b587",
+                          color: "#67b587",
+                          "&:hover": {
+                            borderColor: "#5a9a74",
+                            bgcolor: "rgba(103, 181, 135, 0.1)",
+                          },
+                        }}
+                      >
+                        Find Activity
+                      </Button>
+                    </Box>
+                  )}
+
                   <ActivitiesListCard
                     activities={activities}
                     onEditActivity={startEditActivity}
@@ -470,27 +521,49 @@ function App() {
 
               <Grid size={{ xs: 12, lg: 4 }}>
                 <Stack spacing={3}>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "center", mb: 2 }}
-                  >
-                    <Button
-                      variant="contained"
-                      size="large"
-                      onClick={openAddActivityModal}
-                      sx={{
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: 2,
-                        fontWeight: 600,
-                        bgcolor: "#67b587",
-                        "&:hover": {
-                          bgcolor: "#5a9a74",
-                        },
-                      }}
-                    >
-                      + Add Activity
-                    </Button>
-                  </Box>
+                  {/* Add Activity and Find Activity buttons - desktop only */}
+                  {!isMobile && (
+                    <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        startIcon={<AddIcon />}
+                        onClick={openAddActivityModal}
+                        sx={{
+                          flex: 1,
+                          py: 1.5,
+                          borderRadius: 2,
+                          fontWeight: 600,
+                          bgcolor: "#67b587",
+                          "&:hover": {
+                            bgcolor: "#5a9a74",
+                          },
+                        }}
+                      >
+                        Add Activity
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="large"
+                        startIcon={<SearchIcon />}
+                        onClick={() => setCurrentPage("suggestions")}
+                        sx={{
+                          flex: 1,
+                          py: 1.5,
+                          borderRadius: 2,
+                          fontWeight: 600,
+                          borderColor: "#67b587",
+                          color: "#67b587",
+                          "&:hover": {
+                            borderColor: "#5a9a74",
+                            bgcolor: "rgba(103, 181, 135, 0.1)",
+                          },
+                        }}
+                      >
+                        Find Activity
+                      </Button>
+                    </Box>
+                  )}
 
                   <Card sx={{ borderRadius: 2 }}>
                     <CardContent sx={{ p: 3 }}>
