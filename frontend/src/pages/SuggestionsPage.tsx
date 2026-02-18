@@ -37,6 +37,10 @@ type SkillAnalysis = {
 
 type SuggestionsPageProps = {
   selectedChild?: Child;
+  onOpenActivityModal?: (suggestion?: {
+    title: string;
+    description: string;
+  }) => void;
 };
 
 const quickSimpleIdeas = [
@@ -45,7 +49,10 @@ const quickSimpleIdeas = [
   'Ask: "What was your favorite part of today?"',
 ];
 
-export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
+export function SuggestionsPage({
+  selectedChild,
+  onOpenActivityModal,
+}: SuggestionsPageProps) {
   const [activeTab, setActiveTab] = useState(0);
   const [skillAnalysis, setSkillAnalysis] = useState<SkillAnalysis | null>(
     null,
@@ -446,6 +453,12 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
                                 </Button>
                                 <Button
                                   variant="contained"
+                                  onClick={() => {
+                                    onOpenActivityModal?.({
+                                      title: suggestion.title,
+                                      description: suggestion.description,
+                                    });
+                                  }}
                                   sx={{
                                     flex: 1,
                                     textTransform: "none",
@@ -618,6 +631,12 @@ export function SuggestionsPage({ selectedChild }: SuggestionsPageProps) {
                                   </Button>
                                   <Button
                                     variant="contained"
+                                    onClick={() => {
+                                      onOpenActivityModal?.({
+                                        title: suggestion.title,
+                                        description: suggestion.description,
+                                      });
+                                    }}
                                     sx={{
                                       flex: 1,
                                       textTransform: "none",

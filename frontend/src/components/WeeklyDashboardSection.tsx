@@ -98,7 +98,8 @@ export function WeeklyDashboardSection({
                 sx={{
                   width: { xs: 160, md: 240 },
                   height: { xs: 160, md: 240 },
-                  minWidth: 0,
+                  minWidth: { xs: 160, md: 240 },
+                  minHeight: { xs: 160, md: 240 },
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -106,33 +107,29 @@ export function WeeklyDashboardSection({
                   mr: { md: 3 },
                 }}
               >
-                <ResponsiveContainer
-                  width="100%"
-                  height="100%"
-                  minWidth={0}
-                  minHeight={0}
+                <PieChart
+                  width={isMobile ? 160 : 240}
+                  height={isMobile ? 160 : 240}
                 >
-                  <PieChart>
-                    <Pie
-                      data={dashboard.skill_counts}
-                      dataKey="count"
-                      nameKey="skill"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={isMobile ? 70 : 100}
-                      innerRadius={0}
-                      stroke="none"
-                    >
-                      {dashboard.skill_counts.map((entry, index) => (
-                        <Cell
-                          key={`${entry.skill}-${entry.skill_id}`}
-                          fill={palette[index % palette.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                  <Pie
+                    data={dashboard.skill_counts}
+                    dataKey="count"
+                    nameKey="skill"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={isMobile ? 70 : 100}
+                    innerRadius={0}
+                    stroke="none"
+                  >
+                    {dashboard.skill_counts.map((entry, index) => (
+                      <Cell
+                        key={`${entry.skill}-${entry.skill_id}`}
+                        fill={palette[index % palette.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
               </Box>
 
               <Stack

@@ -302,10 +302,13 @@ function App() {
     setActivityModalOpen(true);
   };
 
-  const openAddActivityModal = () => {
+  const openAddActivityModal = (suggestion?: {
+    title: string;
+    description: string;
+  }) => {
     setEditingActivityId(null);
-    setTitle("");
-    setNotes("");
+    setTitle(suggestion?.title || "");
+    setNotes(suggestion?.description || "");
     setDurationMinutes("");
     setActivityDate(dayjs().format("YYYY-MM-DD"));
     setSelectedSkillIds([]);
@@ -414,7 +417,10 @@ function App() {
       />
 
       {currentPage === "suggestions" ? (
-        <SuggestionsPage selectedChild={selectedChild} />
+        <SuggestionsPage
+          selectedChild={selectedChild}
+          onOpenActivityModal={openAddActivityModal}
+        />
       ) : currentPage === "reports" ? (
         <ReportsPage selectedChild={selectedChild} />
       ) : currentPage === "children" ? (
@@ -471,7 +477,7 @@ function App() {
                         variant="contained"
                         size="large"
                         startIcon={<AddIcon />}
-                        onClick={openAddActivityModal}
+                        onClick={() => openAddActivityModal()}
                         sx={{
                           flex: 1,
                           py: 1.5,
@@ -528,7 +534,7 @@ function App() {
                         variant="contained"
                         size="large"
                         startIcon={<AddIcon />}
-                        onClick={openAddActivityModal}
+                        onClick={() => openAddActivityModal()}
                         sx={{
                           flex: 1,
                           py: 1.5,
@@ -601,26 +607,26 @@ function App() {
               </Grid>
             </Grid>
           </Box>
-
-          <ActivityModal
-            open={activityModalOpen}
-            title={title}
-            notes={notes}
-            durationMinutes={durationMinutes}
-            activityDate={activityDate}
-            selectedSkillIds={selectedSkillIds}
-            skills={skills}
-            isEditing={editingActivityId !== null}
-            onTitleChange={setTitle}
-            onNotesChange={setNotes}
-            onDurationChange={setDurationMinutes}
-            onActivityDateChange={setActivityDate}
-            onSkillToggle={onSkillToggle}
-            onSave={editingActivityId !== null ? updateActivity : addActivity}
-            onCancel={cancelEditActivity}
-          />
         </Container>
       )}
+
+      <ActivityModal
+        open={activityModalOpen}
+        title={title}
+        notes={notes}
+        durationMinutes={durationMinutes}
+        activityDate={activityDate}
+        selectedSkillIds={selectedSkillIds}
+        skills={skills}
+        isEditing={editingActivityId !== null}
+        onTitleChange={setTitle}
+        onNotesChange={setNotes}
+        onDurationChange={setDurationMinutes}
+        onActivityDateChange={setActivityDate}
+        onSkillToggle={onSkillToggle}
+        onSave={editingActivityId !== null ? updateActivity : addActivity}
+        onCancel={cancelEditActivity}
+      />
     </Box>
   );
 }

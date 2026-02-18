@@ -56,12 +56,20 @@ export function ActivityModal({
       onClose={onCancel}
       maxWidth="md"
       fullWidth
+      disableAutoFocus
+      disableRestoreFocus
+      disableEnforceFocus
       PaperProps={{
         sx: { borderRadius: 2 },
       }}
     >
       <DialogTitle>
-        <Typography variant="h6" fontWeight={700} color="#2d3748">
+        <Typography
+          component="span"
+          variant="h6"
+          fontWeight={700}
+          color="#2d3748"
+        >
           {isEditing ? "Edit Activity" : "Add Activity"}
         </Typography>
       </DialogTitle>
