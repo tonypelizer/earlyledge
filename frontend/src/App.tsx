@@ -23,6 +23,7 @@ import { SuggestionsCard } from "./components/SuggestionsCard";
 import { WeeklyDashboardSection } from "./components/WeeklyDashboardSection";
 import { SuggestionsPage } from "./pages/SuggestionsPage";
 import { ReportsPage } from "./pages/ReportsPage";
+import { ChildrenPage } from "./pages/ChildrenPage";
 import type {
   Activity,
   Child,
@@ -32,7 +33,7 @@ import type {
 } from "./types";
 
 type AuthMode = "login" | "signup";
-type PageType = "home" | "suggestions" | "reports";
+type PageType = "home" | "suggestions" | "reports" | "children";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<PageType>("home");
@@ -394,6 +395,23 @@ function App() {
         <SuggestionsPage />
       ) : currentPage === "reports" ? (
         <ReportsPage selectedChild={selectedChild} />
+      ) : currentPage === "children" ? (
+        <ChildrenPage
+          children={children}
+          selectedChildId={selectedChildId}
+          childNameInput={childNameInput}
+          childDateOfBirthInput={childDateOfBirthInput}
+          isEditingChild={isEditingChild}
+          error={error}
+          onSelectedChildChange={onSelectedChildChange}
+          onChildNameChange={setChildNameInput}
+          onChildDateOfBirthChange={setChildDateOfBirthInput}
+          onAddChild={addChild}
+          onStartEditChild={startEditChild}
+          onUpdateChild={updateChild}
+          onCancelEdit={cancelEditChild}
+          onDeleteChild={deleteChild}
+        />
       ) : (
         <Container maxWidth="xl">
           <Box sx={{ px: 3, py: 3 }}>
@@ -453,22 +471,6 @@ function App() {
 
               <Grid size={{ xs: 12, lg: 4 }}>
                 <Stack spacing={3}>
-                  <ChildrenPanel
-                    childrenList={children}
-                    selectedChildId={selectedChildId}
-                    childNameInput={childNameInput}
-                    childDateOfBirthInput={childDateOfBirthInput}
-                    isEditing={isEditingChild}
-                    onSelectedChildChange={onSelectedChildChange}
-                    onChildNameChange={setChildNameInput}
-                    onChildDateOfBirthChange={setChildDateOfBirthInput}
-                    onAddChild={addChild}
-                    onStartEditChild={startEditChild}
-                    onUpdateChild={updateChild}
-                    onCancelEdit={cancelEditChild}
-                    onDeleteChild={deleteChild}
-                  />
-
                   <Card sx={{ borderRadius: 2 }}>
                     <CardContent sx={{ p: 3 }}>
                       <Typography

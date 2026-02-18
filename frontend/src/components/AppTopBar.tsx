@@ -46,6 +46,7 @@ export function AppTopBar({
 
   const handleNavClick = (page: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    handleClose();
     onNavigate?.(page);
   };
 
@@ -188,6 +189,7 @@ export function AppTopBar({
                 horizontal: "right",
               }}
             >
+              <MenuItem onClick={handleNavClick("children")}>Children</MenuItem>
               <MenuItem onClick={handleClose}>Settings</MenuItem>
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>
