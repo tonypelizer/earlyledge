@@ -1,5 +1,7 @@
 import { useState } from "react";
+import dayjs from "dayjs";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -9,6 +11,7 @@ import {
   Stack,
   Tab,
   Tabs,
+  TextField,
   Typography,
 } from "@mui/material";
 import NatureIcon from "@mui/icons-material/Nature";
@@ -26,7 +29,14 @@ import {
   Cell,
 } from "recharts";
 
+import { api } from "../api";
+import type { Child } from "../types";
+
 type TimeRange = "last30days" | "last3months" | "thisyear" | "custom";
+
+type ReportsPageProps = {
+  selectedChild?: Child;
+};
 
 type MonthlyData = {
   month: string;
@@ -117,13 +127,46 @@ const growthHighlights = [
   "Balanced exploration across 4 skill areas",
 ];
 
-export function ReportsPage() {
+export function ReportsPage({ selectedChild }: ReportsPageProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>("last3months");
+  const [month, setMonth] = useState(dayjs().format("YYYY-MM"));
+  const [error, setError] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const downloadSnapshot = async () => {
+    if (!selectedChild) {
+      setError("Please select a child first.");
+      return;
+    }
+
+    setError("");
+    setIsGenerating(true);
+    try {
+      const response = await api.get(
+        `/reports/monthly/?child_id=${selectedChild.id}&month=${month}`,
+        {
+          responseType: "blob",
+        },
+      );
+      const url = URL.createObjectURL(response.data);
+      window.open(url, "_blank");
+    } catch {
+      setError("Could not generate monthly snapshot.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", py: 4 }}>
       <Container maxWidth="xl">
         <Stack spacing={4}>
+          {error && (
+            <Alert severity="error" onClose={() => setError("")}>
+              {error}
+            </Alert>
+          )}
+
           {/* Header */}
           <Box>
             <Stack
@@ -585,7 +628,7 @@ export function ReportsPage() {
             {/* Sidebar */}
             <Grid size={{ xs: 12, lg: 4 }}>
               <Stack spacing={3}>
-                {/* June Snapshot Card */}
+                {/* Monthly Snapshot Card */}
                 <Card sx={{ borderRadius: 2 }}>
                   <CardContent sx={{ p: 3 }}>
                     <Stack spacing={2} alignItems="center">
@@ -603,7 +646,7 @@ export function ReportsPage() {
                           fontWeight={700}
                           color="#2d3748"
                         >
-                          June 2026 Snapshot
+                          Monthly Snapshot
                         </Typography>
                       </Stack>
 
@@ -656,10 +699,22 @@ export function ReportsPage() {
                         </Box>
                       </Box>
 
+                      <TextField
+                        label="Select Month"
+                        type="month"
+                        value={month}
+                        onChange={(event) => setMonth(event.target.value)}
+                        slotProps={{ inputLabel: { shrink: true } }}
+                        fullWidth
+                        size="medium"
+                      />
+
                       <Button
                         fullWidth
                         variant="contained"
                         startIcon={<FileDownloadIcon />}
+                        onClick={downloadSnapshot}
+                        disabled={!selectedChild || isGenerating}
                         sx={{
                           py: 1.5,
                           fontWeight: 600,
@@ -667,7 +722,9 @@ export function ReportsPage() {
                           fontSize: "1rem",
                         }}
                       >
-                        Download PDF Snapshot
+                        {isGenerating
+                          ? "Generating..."
+                          : "Download PDF Snapshot"}
                       </Button>
 
                       <Typography
@@ -676,7 +733,9 @@ export function ReportsPage() {
                         fontSize="0.875rem"
                         textAlign="center"
                       >
-                        A keepsake record of the last month.
+                        A keepsake record of{" "}
+                        {selectedChild ? `${selectedChild.name}'s` : "the"}{" "}
+                        activities for the selected month.
                       </Typography>
                     </Stack>
                   </CardContent>

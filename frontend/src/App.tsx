@@ -19,7 +19,6 @@ import { AppTopBar } from "./components/AppTopBar";
 import { AuthCard } from "./components/AuthCard";
 import { ChildrenPanel } from "./components/ChildrenPanel";
 import { GentleNudgesCard } from "./components/GentleNudgesCard";
-import { MonthlySnapshotCard } from "./components/MonthlySnapshotCard";
 import { SuggestionsCard } from "./components/SuggestionsCard";
 import { WeeklyDashboardSection } from "./components/WeeklyDashboardSection";
 import { SuggestionsPage } from "./pages/SuggestionsPage";
@@ -64,7 +63,6 @@ function App() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
 
-  const [month, setMonth] = useState(dayjs().format("YYYY-MM"));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -300,25 +298,6 @@ function App() {
     }
   };
 
-  const downloadSnapshot = async () => {
-    if (!selectedChildId) {
-      return;
-    }
-
-    try {
-      const response = await api.get(
-        `/reports/monthly/?child_id=${selectedChildId}&month=${month}`,
-        {
-          responseType: "blob",
-        },
-      );
-      const url = URL.createObjectURL(response.data);
-      window.open(url, "_blank");
-    } catch {
-      setError("Could not generate monthly snapshot.");
-    }
-  };
-
   if (!token) {
     return (
       <AuthCard
@@ -349,7 +328,7 @@ function App() {
       {currentPage === "suggestions" ? (
         <SuggestionsPage />
       ) : currentPage === "reports" ? (
-        <ReportsPage />
+        <ReportsPage selectedChild={selectedChild} />
       ) : (
         <Container maxWidth="xl">
           <Box sx={{ px: 3, py: 3 }}>
@@ -448,13 +427,6 @@ function App() {
                   <GentleNudgesCard
                     missingSkills={dashboard?.missing_skills ?? []}
                     onSeeIdeas={getSuggestions}
-                  />
-
-                  <MonthlySnapshotCard
-                    month={month}
-                    disabled={!selectedChildId}
-                    onMonthChange={setMonth}
-                    onGenerate={downloadSnapshot}
                   />
                 </Stack>
               </Grid>
