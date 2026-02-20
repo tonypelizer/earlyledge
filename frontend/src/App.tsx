@@ -21,7 +21,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 
-import { api, setAuthToken } from "./api";
+import { api, setAuthToken, setOnUnauthenticated } from "./api";
 import { ActivitiesListCard } from "./components/ActivitiesListCard";
 import { ActivityModal } from "./components/ActivityModal";
 import { AppTopBar } from "./components/AppTopBar";
@@ -50,7 +50,9 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState<PageType>("home");
   const [mode, setMode] = useState<AuthMode>("login");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState<string>(
+    localStorage.getItem("userEmail") ?? "",
+  );
   const [password, setPassword] = useState("");
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
@@ -124,12 +126,19 @@ function App() {
   }, [refreshChildData]);
 
   useEffect(() => {
+    setOnUnauthenticated(() => setToken(null));
+  }, []);
+
+  useEffect(() => {
     setAuthToken(token);
     if (token) {
       localStorage.setItem("token", token);
       void bootstrap();
     } else {
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userEmail");
+      setEmail("");
     }
   }, [token, bootstrap]);
 
@@ -141,6 +150,8 @@ function App() {
         await api.post("/auth/signup/", { email, password });
       }
       const response = await api.post("/auth/login/", { email, password });
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("refreshToken", response.data.refresh);
       setToken(response.data.access);
     } catch {
       setError("Authentication failed. Please check your details.");
