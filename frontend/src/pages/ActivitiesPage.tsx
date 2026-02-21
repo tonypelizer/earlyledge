@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -37,11 +36,11 @@ type ActivitiesPageProps = {
 export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { notify } = useSnackbar();
 
   const [activities, setActivities] = useState<Activity[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -82,7 +81,7 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
     if (!selectedChild) return;
 
     setLoading(true);
-    setError("");
+
     try {
       const response = await api.get(
         `/activities/?child_id=${selectedChild.id}`,
@@ -97,7 +96,7 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
       setActivities(paginatedActivities);
       setTotalPages(Math.ceil(allActivities.length / activitiesPerPage));
     } catch {
-      setError("Could not load activities.");
+      notify("Could not load activities.", "error");
     } finally {
       setLoading(false);
     }
@@ -128,18 +127,20 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
 
       setActivityModalOpen(false);
       cancelEditActivity();
+      notify("Activity updated.", "success");
       fetchActivities(); // Refresh the list
     } catch {
-      setError("Could not update activity.");
+      notify("Could not update activity.", "error");
     }
   };
 
   const deleteActivity = async (activityId: number) => {
     try {
       await api.delete(`/activities/${activityId}/`);
+      notify("Activity deleted.", "success");
       fetchActivities(); // Refresh the list
     } catch {
-      setError("Could not delete activity.");
+      notify("Could not delete activity.", "error");
     }
   };
 
@@ -206,12 +207,6 @@ export function ActivitiesPage({ selectedChild }: ActivitiesPageProps) {
         sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
       >
         <Stack spacing={4}>
-          {error && (
-            <Alert severity="error" onClose={() => setError("")}>
-              {error}
-            </Alert>
-          )}
-
           {/* Header */}
           <Box>
             <Stack

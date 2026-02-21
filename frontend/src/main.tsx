@@ -5,12 +5,15 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import App from "./App";
 import "./index.css";
 import { theme } from "./theme";
+import { SnackbarProvider } from "./context/SnackbarContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      <SnackbarProvider>
+        <App />
+      </SnackbarProvider>
     </ThemeProvider>
   </StrictMode>,
 );

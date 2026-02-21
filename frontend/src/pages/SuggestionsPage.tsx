@@ -17,6 +17,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 import { api } from "../api";
+import { useSnackbar } from "../context/SnackbarContext";
 import type { Child } from "../types";
 
 type PersonalizedSuggestion = {
@@ -58,7 +59,7 @@ export function SuggestionsPage({
     null,
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { notify } = useSnackbar();
   const [savedSuggestions, setSavedSuggestions] = useState<
     PersonalizedSuggestion[]
   >([]);
@@ -88,17 +89,14 @@ export function SuggestionsPage({
   }, [selectedChild]);
 
   const saveSuggestion = (suggestion: PersonalizedSuggestion) => {
-    setSavedSuggestions((prev) => {
-      // Check if already saved
-      if (prev.some((s) => s.id === suggestion.id)) {
-        return prev;
-      }
-      return [...prev, suggestion];
-    });
+    if (savedSuggestions.some((s) => s.id === suggestion.id)) return;
+    setSavedSuggestions((prev) => [...prev, suggestion]);
+    notify("Saved for later!", "success");
   };
 
   const removeSuggestion = (suggestionId: number) => {
     setSavedSuggestions((prev) => prev.filter((s) => s.id !== suggestionId));
+    notify("Removed from saved.", "info");
   };
 
   const isSuggestionSaved = (suggestionId: number) => {
@@ -189,12 +187,11 @@ export function SuggestionsPage({
 
   const fetchSkillAnalysis = async (childId: number) => {
     setLoading(true);
-    setError("");
     try {
       const response = await api.get(`/skill-analysis/?child_id=${childId}`);
       setSkillAnalysis(response.data);
     } catch {
-      setError("Could not load skill analysis.");
+      notify("Could not load skill analysis.", "error");
     } finally {
       setLoading(false);
     }
@@ -257,19 +254,13 @@ export function SuggestionsPage({
                   Some ideas for {selectedChild.name}
                 </Typography>
               </Stack>
-              {error ? (
-                <Typography variant="body1" color="error">
-                  {error}
-                </Typography>
-              ) : (
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  fontSize="1rem"
-                >
-                  {skillAnalysis?.analysis_text || "Loading analysis..."}
-                </Typography>
-              )}
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                fontSize="1rem"
+              >
+                {skillAnalysis?.analysis_text || "Loading analysis..."}
+              </Typography>
             </Box>
 
             {/* Tabs */}

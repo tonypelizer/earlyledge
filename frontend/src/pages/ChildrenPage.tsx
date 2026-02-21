@@ -1,4 +1,4 @@
-import { Container, Typography, Box, Alert } from "@mui/material";
+import { Container, Typography, Box } from "@mui/material";
 
 import { ChildrenPanel } from "../components/ChildrenPanel";
 import type { Child } from "../types";
@@ -9,7 +9,6 @@ type ChildrenPageProps = {
   childNameInput: string;
   childDateOfBirthInput: string;
   isEditingChild: boolean;
-  error: string;
   onSelectedChildChange: (childId: number) => void;
   onChildNameChange: (name: string) => void;
   onChildDateOfBirthChange: (date: string) => void;
@@ -26,7 +25,6 @@ export function ChildrenPage({
   childNameInput,
   childDateOfBirthInput,
   isEditingChild,
-  error,
   onSelectedChildChange,
   onChildNameChange,
   onChildDateOfBirthChange,
@@ -47,12 +45,6 @@ export function ChildrenPage({
         >
           Manage Children
         </Typography>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
 
         <ChildrenPanel
           childrenList={children}

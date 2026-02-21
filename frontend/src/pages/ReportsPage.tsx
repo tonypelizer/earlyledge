@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -27,6 +26,7 @@ import {
 } from "recharts";
 
 import { api } from "../api";
+import { useSnackbar } from "../context/SnackbarContext";
 import type { Child } from "../types";
 
 type TimeRange = "last30days" | "last3months" | "thisyear" | "custom";
@@ -59,10 +59,10 @@ const skillColors: { [key: string]: string } = {
 export function ReportsPage({ selectedChild }: ReportsPageProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>("last3months");
   const [month, setMonth] = useState(dayjs().format("YYYY-MM"));
-  const [error, setError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportsData, setReportsData] = useState<ReportsData | null>(null);
   const [loading, setLoading] = useState(false);
+  const { notify } = useSnackbar();
 
   // Fetch reports data when child or time range changes
   useEffect(() => {
@@ -75,26 +75,21 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
     if (!selectedChild) return;
 
     setLoading(true);
-    setError("");
     try {
       const response = await api.get(
         `/reports/?child_id=${selectedChild.id}&time_range=${timeRange}`,
       );
       setReportsData(response.data);
     } catch {
-      setError("Could not load reports data.");
+      notify("Could not load reports data.", "error");
     } finally {
       setLoading(false);
     }
   };
 
   const downloadSnapshot = async () => {
-    if (!selectedChild) {
-      setError("Please select a child first.");
-      return;
-    }
+    if (!selectedChild) return;
 
-    setError("");
     setIsGenerating(true);
     try {
       const response = await api.get(
@@ -105,8 +100,9 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
       );
       const url = URL.createObjectURL(response.data);
       window.open(url, "_blank");
+      notify("Snapshot opened in a new tab.", "success");
     } catch {
-      setError("Could not generate monthly snapshot.");
+      notify("Could not generate monthly snapshot.", "error");
     } finally {
       setIsGenerating(false);
     }
@@ -151,12 +147,6 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
       <Container maxWidth="xl">
         <Box sx={{ px: { xs: 1, md: 2 }, pt: { xs: 2, md: 3 } }}>
           <Stack spacing={4}>
-            {error && (
-              <Alert severity="error" onClose={() => setError("")}>
-                {error}
-              </Alert>
-            )}
-
             {/* Header */}
             <Box>
               <Stack

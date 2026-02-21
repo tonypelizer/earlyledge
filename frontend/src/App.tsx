@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -22,6 +21,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 
 import { api, setAuthToken, setOnUnauthenticated } from "./api";
+import { useSnackbar } from "./context/SnackbarContext";
 import { ActivitiesListCard } from "./components/ActivitiesListCard";
 import { ActivityModal } from "./components/ActivityModal";
 import { AppTopBar } from "./components/AppTopBar";
@@ -47,6 +47,7 @@ type PageType = "home" | "suggestions" | "reports" | "children" | "activities";
 function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const { notify } = useSnackbar();
 
   const [currentPage, setCurrentPage] = useState<PageType>("home");
   const [mode, setMode] = useState<AuthMode>("login");
@@ -120,7 +121,7 @@ function App() {
         await refreshChildData(firstChildId);
       }
     } catch {
-      setError("Unable to load your data. Please log in again.");
+      notify("Unable to load your data. Please log in again.", "error");
       setToken(null);
     }
   }, [refreshChildData]);
@@ -165,7 +166,6 @@ function App() {
       return;
     }
 
-    setError("");
     try {
       const response = await api.post("/children/", {
         name: childNameInput,
@@ -176,13 +176,14 @@ function App() {
       setChildren((previous) => [...previous, createdChild]);
       setChildNameInput("");
       setChildDateOfBirthInput("");
+      notify("Child added!", "success");
 
       if (!selectedChildId) {
         setSelectedChildId(createdChild.id);
         await refreshChildData(createdChild.id);
       }
     } catch {
-      setError("Could not add child.");
+      notify("Could not add child.", "error");
     }
   };
 
@@ -220,7 +221,6 @@ function App() {
       return;
     }
 
-    setError("");
     try {
       const response = await api.patch(`/children/${editingChildId}/`, {
         name: childNameInput,
@@ -236,8 +236,9 @@ function App() {
       setEditingChildId(null);
       setChildNameInput("");
       setChildDateOfBirthInput("");
+      notify("Changes saved.", "success");
     } catch {
-      setError("Could not update child details.");
+      notify("Could not update child details.", "error");
     }
   };
 
@@ -246,7 +247,6 @@ function App() {
       return;
     }
 
-    setError("");
     try {
       const targetId = Number(selectedChildId);
       await api.delete(`/children/${targetId}/`);
@@ -256,6 +256,7 @@ function App() {
       setEditingChildId(null);
       setChildNameInput("");
       setChildDateOfBirthInput("");
+      notify("Child removed.", "success");
 
       if (nextChildren.length > 0) {
         const nextSelectedId = nextChildren[0].id;
@@ -268,7 +269,7 @@ function App() {
         setSuggestions([]);
       }
     } catch {
-      setError("Could not remove child.");
+      notify("Could not remove child.", "error");
     }
   };
 
@@ -286,7 +287,6 @@ function App() {
       return;
     }
 
-    setError("");
     try {
       await api.post("/activities/", {
         child: selectedChildId,
@@ -303,10 +303,11 @@ function App() {
       setDurationMinutes("");
       setActivityDate(dayjs().format("YYYY-MM-DD"));
       setSelectedSkillIds([]);
+      notify("Activity logged!", "success");
 
       await refreshChildData(Number(selectedChildId));
     } catch {
-      setError("Could not save activity.");
+      notify("Could not save activity.", "error");
     }
   };
 
@@ -385,22 +386,15 @@ function App() {
       );
 
       setReflectionModalOpen(false);
+      notify("Reflection saved! ✨", "success");
     } catch (err) {
       const error = err as { response?: { data: unknown; status: number } };
       console.error("Error saving reflection:", error);
       if (error.response) {
         console.error("Response data:", error.response.data);
         console.error("Response status:", error.response.status);
-        console.error("Request data was:", {
-          child: selectedChild.id,
-          week_start_date: dayjs()
-            .startOf("week")
-            .add(1, "day")
-            .format("YYYY-MM-DD"),
-          content: reflectionNote,
-        });
       }
-      setError("Failed to save reflection. Please try again.");
+      notify("Failed to save reflection. Please try again.", "error");
     }
   };
 
@@ -413,7 +407,6 @@ function App() {
       return;
     }
 
-    setError("");
     try {
       await api.patch(`/activities/${editingActivityId}/`, {
         title,
@@ -430,25 +423,26 @@ function App() {
       setDurationMinutes("");
       setActivityDate(dayjs().format("YYYY-MM-DD"));
       setSelectedSkillIds([]);
+      notify("Activity updated.", "success");
 
       if (selectedChildId) {
         await refreshChildData(Number(selectedChildId));
       }
     } catch {
-      setError("Could not update activity.");
+      notify("Could not update activity.", "error");
     }
   };
 
   const deleteActivity = async (activityId: number) => {
-    setError("");
     try {
       await api.delete(`/activities/${activityId}/`);
+      notify("Activity deleted.", "success");
 
       if (selectedChildId) {
         await refreshChildData(Number(selectedChildId));
       }
     } catch {
-      setError("Could not delete activity.");
+      notify("Could not delete activity.", "error");
     }
   };
 
@@ -468,7 +462,7 @@ function App() {
       );
       setSuggestions(response.data);
     } catch {
-      setError("Could not load suggestions.");
+      notify("Could not load suggestions.", "error");
     }
   };
 
@@ -513,7 +507,6 @@ function App() {
           childNameInput={childNameInput}
           childDateOfBirthInput={childDateOfBirthInput}
           isEditingChild={isEditingChild}
-          error={error}
           onSelectedChildChange={onSelectedChildChange}
           onChildNameChange={setChildNameInput}
           onChildDateOfBirthChange={setChildDateOfBirthInput}
@@ -528,12 +521,6 @@ function App() {
       ) : (
         <Container maxWidth="xl">
           <Box sx={{ px: { xs: 1, md: 2 }, py: { xs: 2, md: 2.5 } }}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
-
             <Typography
               variant="h4"
               fontWeight={700}
