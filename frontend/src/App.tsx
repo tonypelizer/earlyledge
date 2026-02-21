@@ -140,6 +140,13 @@ function App() {
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userEmail");
       setEmail("");
+      // Clear all user data so it doesn't bleed into the next session
+      setChildren([]);
+      setSkills([]);
+      setSelectedChildId("");
+      setDashboard(null);
+      setActivities([]);
+      setSuggestions([]);
     }
   }, [token, bootstrap]);
 
