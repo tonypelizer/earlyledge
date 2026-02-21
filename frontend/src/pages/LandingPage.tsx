@@ -184,7 +184,27 @@ export function LandingPage({ onStartFree, onSignIn }: LandingPageProps) {
             spacing={{ xs: 5, md: 8 }}
             alignItems="center"
           >
-            {/* Left — text */}
+            {/* Left on desktop / top on mobile — hero image */}
+            <Box
+              sx={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={heroLogoUrl}
+                alt="EarlyLedge"
+                style={{
+                  maxWidth: "100%",
+                  height: "auto",
+                  maxHeight: 340,
+                  objectFit: "contain",
+                }}
+              />
+            </Box>
+
+            {/* Right on desktop / bottom on mobile — text */}
             <Box sx={{ flex: 1, textAlign: { xs: "center", md: "left" } }}>
               <Typography
                 variant="h3"
@@ -254,26 +274,6 @@ export function LandingPage({ onStartFree, onSignIn }: LandingPageProps) {
                   Sign in to your account
                 </Button>
               </Stack>
-            </Box>
-
-            {/* Right — hero image */}
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                src={heroLogoUrl}
-                alt="EarlyLedge"
-                style={{
-                  maxWidth: "100%",
-                  height: "auto",
-                  maxHeight: 340,
-                  objectFit: "contain",
-                }}
-              />
             </Box>
           </Stack>
         </Container>
