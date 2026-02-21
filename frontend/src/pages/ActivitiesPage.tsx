@@ -26,6 +26,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import NatureIcon from "@mui/icons-material/Nature";
 
 import { api } from "../api";
+import { useSnackbar } from "../context/SnackbarContext";
 import { ActivityModal } from "../components/ActivityModal";
 import type { Activity, Child, Skill } from "../types";
 
