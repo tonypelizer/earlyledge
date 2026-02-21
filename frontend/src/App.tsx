@@ -33,6 +33,7 @@ import { SuggestionsPage } from "./pages/SuggestionsPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { ChildrenPage } from "./pages/ChildrenPage";
 import { ActivitiesPage } from "./pages/ActivitiesPage";
+import { LandingPage } from "./pages/LandingPage";
 import { PricingPage } from "./pages/PricingPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { usePlan } from "./hooks/usePlan";
@@ -68,6 +69,7 @@ function App() {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token"),
   );
+  const [showAuth, setShowAuth] = useState(false);
 
   const [children, setChildren] = useState<Child[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -160,6 +162,7 @@ function App() {
       setDashboard(null);
       setActivities([]);
       setSuggestions([]);
+      setShowAuth(false);
     }
   }, [token, bootstrap]);
 
@@ -494,19 +497,36 @@ function App() {
   };
 
   if (!token) {
+    // Auth form requested (Sign In / Start Free clicked)
+    if (showAuth) {
+      return (
+        <AuthCard
+          mode={mode}
+          email={email}
+          password={password}
+          loading={loading}
+          error={error}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          onSubmit={onAuth}
+          onToggleMode={() =>
+            setMode((previous) => (previous === "login" ? "signup" : "login"))
+          }
+        />
+      );
+    }
+
+    // Marketing landing page
     return (
-      <AuthCard
-        mode={mode}
-        email={email}
-        password={password}
-        loading={loading}
-        error={error}
-        onEmailChange={setEmail}
-        onPasswordChange={setPassword}
-        onSubmit={onAuth}
-        onToggleMode={() =>
-          setMode((previous) => (previous === "login" ? "signup" : "login"))
-        }
+      <LandingPage
+        onStartFree={() => {
+          setMode("signup");
+          setShowAuth(true);
+        }}
+        onSignIn={() => {
+          setMode("login");
+          setShowAuth(true);
+        }}
       />
     );
   }
