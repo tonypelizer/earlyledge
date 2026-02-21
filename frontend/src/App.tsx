@@ -332,6 +332,10 @@ function App() {
     title: string;
     description: string;
   }) => {
+    if (!selectedChildId) {
+      notify("Add a child first before logging an activity.", "warning");
+      return;
+    }
     setEditingActivityId(null);
     setTitle(suggestion?.title || "");
     setNotes(suggestion?.description || "");
@@ -352,7 +356,10 @@ function App() {
   };
 
   const openReflectionModal = async () => {
-    if (!selectedChild) return;
+    if (!selectedChild) {
+      notify("Add a child first before writing a reflection.", "warning");
+      return;
+    }
 
     // Calculate Monday of current week
     const today = dayjs();
@@ -528,162 +535,212 @@ function App() {
       ) : (
         <Container maxWidth="xl">
           <Box sx={{ px: { xs: 1, md: 2 }, py: { xs: 2, md: 2.5 } }}>
-            <Typography
-              variant="h4"
-              fontWeight={700}
-              color="#2d3748"
-              sx={{ mb: 3 }}
-            >
-              Welcome{selectedChild ? `, ${selectedChild.name}` : ""}!
-            </Typography>
+            {children.length === 0 ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  pt: { xs: 6, md: 10 },
+                  pb: 4,
+                }}
+              >
+                <Typography sx={{ fontSize: 64, lineHeight: 1, mb: 3 }}>
+                  🌱
+                </Typography>
+                <Typography
+                  variant="h4"
+                  fontWeight={700}
+                  color="#2d3748"
+                  sx={{ mb: 1.5 }}
+                >
+                  Welcome to EarlyLedge!
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 4, maxWidth: 480 }}
+                >
+                  Before you can log activities or write reflections, you need
+                  to add your child. It only takes a few seconds.
+                </Typography>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => setCurrentPage("children")}
+                  sx={{
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    bgcolor: "#67b587",
+                    "&:hover": { bgcolor: "#5a9a74" },
+                  }}
+                >
+                  Add your first child
+                </Button>
+              </Box>
+            ) : (
+              <>
+                <Typography
+                  variant="h4"
+                  fontWeight={700}
+                  color="#2d3748"
+                  sx={{ mb: 3 }}
+                >
+                  Welcome{selectedChild ? `, ${selectedChild.name}` : ""}!
+                </Typography>
 
-            <Grid container spacing={3} alignItems="flex-start">
-              <Grid size={{ xs: 12, lg: 8 }}>
-                <Stack spacing={3}>
-                  {selectedChild && dashboard && (
-                    <WeeklyDashboardSection
-                      childName={selectedChild.name}
-                      dashboard={dashboard}
-                    />
-                  )}
+                <Grid container spacing={3} alignItems="flex-start">
+                  <Grid size={{ xs: 12, lg: 8 }}>
+                    <Stack spacing={3}>
+                      {selectedChild && dashboard && (
+                        <WeeklyDashboardSection
+                          childName={selectedChild.name}
+                          dashboard={dashboard}
+                        />
+                      )}
 
-                  {/* Add Activity and Find Activity buttons on mobile */}
-                  {isMobile && (
-                    <Box sx={{ display: "flex", gap: 2 }}>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        startIcon={<AddIcon />}
-                        onClick={() => openAddActivityModal()}
-                        sx={{
-                          flex: 1,
-                          py: 1.5,
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          bgcolor: "#67b587",
-                          "&:hover": {
-                            bgcolor: "#5a9a74",
-                          },
-                        }}
-                      >
-                        Add Activity
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="large"
-                        startIcon={<SearchIcon />}
-                        onClick={() => setCurrentPage("suggestions")}
-                        sx={{
-                          flex: 1,
-                          py: 1.5,
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          borderColor: "#67b587",
-                          color: "#67b587",
-                          "&:hover": {
-                            borderColor: "#5a9a74",
-                            bgcolor: "rgba(103, 181, 135, 0.1)",
-                          },
-                        }}
-                      >
-                        Find Activity
-                      </Button>
-                    </Box>
-                  )}
+                      {/* Add Activity and Find Activity buttons on mobile */}
+                      {isMobile && (
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                          <Button
+                            variant="contained"
+                            size="large"
+                            startIcon={<AddIcon />}
+                            onClick={() => openAddActivityModal()}
+                            sx={{
+                              flex: 1,
+                              py: 1.5,
+                              borderRadius: 2,
+                              fontWeight: 600,
+                              bgcolor: "#67b587",
+                              "&:hover": {
+                                bgcolor: "#5a9a74",
+                              },
+                            }}
+                          >
+                            Add Activity
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="large"
+                            startIcon={<SearchIcon />}
+                            onClick={() => setCurrentPage("suggestions")}
+                            sx={{
+                              flex: 1,
+                              py: 1.5,
+                              borderRadius: 2,
+                              fontWeight: 600,
+                              borderColor: "#67b587",
+                              color: "#67b587",
+                              "&:hover": {
+                                borderColor: "#5a9a74",
+                                bgcolor: "rgba(103, 181, 135, 0.1)",
+                              },
+                            }}
+                          >
+                            Find Activity
+                          </Button>
+                        </Box>
+                      )}
 
-                  <ActivitiesListCard
-                    activities={activities}
-                    onEditActivity={startEditActivity}
-                    onDeleteActivity={deleteActivity}
-                    onViewAllActivities={() => setCurrentPage("activities")}
-                  />
+                      <ActivitiesListCard
+                        activities={activities}
+                        onEditActivity={startEditActivity}
+                        onDeleteActivity={deleteActivity}
+                        onViewAllActivities={() => setCurrentPage("activities")}
+                      />
 
-                  <SuggestionsCard suggestions={suggestions} />
-                </Stack>
-              </Grid>
+                      <SuggestionsCard suggestions={suggestions} />
+                    </Stack>
+                  </Grid>
 
-              <Grid size={{ xs: 12, lg: 4 }}>
-                <Stack spacing={3}>
-                  {/* Add Activity and Find Activity buttons - desktop only */}
-                  {!isMobile && (
-                    <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                      <Button
-                        variant="contained"
-                        size="large"
-                        startIcon={<AddIcon />}
-                        onClick={() => openAddActivityModal()}
-                        sx={{
-                          flex: 1,
-                          py: 1.5,
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          bgcolor: "#67b587",
-                          "&:hover": {
-                            bgcolor: "#5a9a74",
-                          },
-                        }}
-                      >
-                        Add Activity
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="large"
-                        startIcon={<SearchIcon />}
-                        onClick={() => setCurrentPage("suggestions")}
-                        sx={{
-                          flex: 1,
-                          py: 1.5,
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          borderColor: "#67b587",
-                          color: "#67b587",
-                          "&:hover": {
-                            borderColor: "#5a9a74",
-                            bgcolor: "rgba(103, 181, 135, 0.1)",
-                          },
-                        }}
-                      >
-                        Find Activity
-                      </Button>
-                    </Box>
-                  )}
+                  <Grid size={{ xs: 12, lg: 4 }}>
+                    <Stack spacing={3}>
+                      {/* Add Activity and Find Activity buttons - desktop only */}
+                      {!isMobile && (
+                        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                          <Button
+                            variant="contained"
+                            size="large"
+                            startIcon={<AddIcon />}
+                            onClick={() => openAddActivityModal()}
+                            sx={{
+                              flex: 1,
+                              py: 1.5,
+                              borderRadius: 2,
+                              fontWeight: 600,
+                              bgcolor: "#67b587",
+                              "&:hover": {
+                                bgcolor: "#5a9a74",
+                              },
+                            }}
+                          >
+                            Add Activity
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="large"
+                            startIcon={<SearchIcon />}
+                            onClick={() => setCurrentPage("suggestions")}
+                            sx={{
+                              flex: 1,
+                              py: 1.5,
+                              borderRadius: 2,
+                              fontWeight: 600,
+                              borderColor: "#67b587",
+                              color: "#67b587",
+                              "&:hover": {
+                                borderColor: "#5a9a74",
+                                bgcolor: "rgba(103, 181, 135, 0.1)",
+                              },
+                            }}
+                          >
+                            Find Activity
+                          </Button>
+                        </Box>
+                      )}
 
-                  <Card sx={{ borderRadius: 2 }}>
-                    <CardContent sx={{ p: 3 }}>
-                      <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        color="#2d3748"
-                        sx={{ mb: 1.5 }}
-                      >
-                        Weekly Reflections
-                      </Typography>
-                      <Typography
-                        color="text.secondary"
-                        fontSize="0.875rem"
-                        sx={{ mb: 2 }}
-                      >
-                        What was a highlight of your child&apos;s learning this
-                        week?
-                      </Typography>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        onClick={openReflectionModal}
-                        sx={{ py: 1.25, fontWeight: 600 }}
-                      >
-                        Write a Note
-                      </Button>
-                    </CardContent>
-                  </Card>
+                      <Card sx={{ borderRadius: 2 }}>
+                        <CardContent sx={{ p: 3 }}>
+                          <Typography
+                            variant="h6"
+                            fontWeight={700}
+                            color="#2d3748"
+                            sx={{ mb: 1.5 }}
+                          >
+                            Weekly Reflections
+                          </Typography>
+                          <Typography
+                            color="text.secondary"
+                            fontSize="0.875rem"
+                            sx={{ mb: 2 }}
+                          >
+                            What was a highlight of your child&apos;s learning
+                            this week?
+                          </Typography>
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            onClick={openReflectionModal}
+                            sx={{ py: 1.25, fontWeight: 600 }}
+                          >
+                            Write a Note
+                          </Button>
+                        </CardContent>
+                      </Card>
 
-                  <GentleNudgesCard
-                    missingSkills={dashboard?.missing_skills ?? []}
-                    onSeeIdeas={getSuggestions}
-                  />
-                </Stack>
-              </Grid>
-            </Grid>
+                      <GentleNudgesCard
+                        missingSkills={dashboard?.missing_skills ?? []}
+                        onSeeIdeas={getSuggestions}
+                      />
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </>
+            )}
           </Box>
         </Container>
       )}
