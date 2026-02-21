@@ -82,6 +82,7 @@ export function AppTopBar({
     { page: "activities", label: "All Activities", icon: <ListAltIcon /> },
     { page: "children", label: "Children", icon: <ChildCareIcon /> },
     { page: "pricing", label: "Pricing", icon: <AutoAwesomeIcon /> },
+    { page: "settings", label: "Settings", icon: <SettingsIcon /> },
   ];
 
   return (
@@ -291,7 +292,7 @@ export function AppTopBar({
               }}
             >
               <MenuItem onClick={handleNavClick("children")}>Children</MenuItem>
-              <MenuItem onClick={handleClose}>Settings</MenuItem>
+              <MenuItem onClick={handleNavClick("settings")}>Settings</MenuItem>
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>
           </Stack>
@@ -382,14 +383,6 @@ export function AppTopBar({
 
           {/* Settings and logout */}
           <List>
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleClose}>
-                <ListItemIcon sx={{ color: "text.secondary" }}>
-                  <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Settings" />
-              </ListItemButton>
-            </ListItem>
             <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>
                 <ListItemIcon sx={{ color: "text.secondary" }}>

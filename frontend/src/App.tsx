@@ -34,6 +34,7 @@ import { ReportsPage } from "./pages/ReportsPage";
 import { ChildrenPage } from "./pages/ChildrenPage";
 import { ActivitiesPage } from "./pages/ActivitiesPage";
 import { PricingPage } from "./pages/PricingPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { usePlan } from "./hooks/usePlan";
 import type {
   Activity,
@@ -50,7 +51,8 @@ type PageType =
   | "reports"
   | "children"
   | "activities"
-  | "pricing";
+  | "pricing"
+  | "settings";
 
 function App() {
   const theme = useTheme();
@@ -96,7 +98,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { isPlus, maxChildren, refetchPlan } = usePlan();
+  const { plan, isPlus, maxChildren, refetchPlan } = usePlan();
 
   const selectedChild = useMemo(
     () => children.find((child) => child.id === selectedChildId),
@@ -535,6 +537,17 @@ function App() {
         <PricingPage
           isPlus={isPlus}
           onNavigate={(page) => setCurrentPage(page as PageType)}
+        />
+      ) : currentPage === "settings" ? (
+        <SettingsPage
+          email={email}
+          plan={plan}
+          children={children}
+          isPlus={isPlus}
+          maxChildren={maxChildren}
+          onLogout={() => setToken(null)}
+          onNavigateToPricing={() => setCurrentPage("pricing")}
+          onNavigateToChildren={() => setCurrentPage("children")}
         />
       ) : currentPage === "children" ? (
         <ChildrenPage
