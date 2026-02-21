@@ -238,319 +238,128 @@ export function SuggestionsPage({
     <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}>
       <Container maxWidth="xl">
         <Box sx={{ px: { xs: 1, md: 2 }, pt: { xs: 2, md: 3 } }}>
-        <Stack spacing={4}>
-          {/* Header */}
-          <Box>
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              sx={{ mb: 1.5 }}
-            >
-              <Typography sx={{ fontSize: 32 }}>🌱</Typography>
-              <Typography
-                variant="h5"
-                fontWeight={700}
-                color="#2d3748"
-                sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
-              >
-                Some ideas for {selectedChild.name}
-              </Typography>
-            </Stack>
-            {error ? (
-              <Typography variant="body1" color="error">
-                {error}
-              </Typography>
-            ) : (
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                fontSize="1rem"
-              >
-                {skillAnalysis?.analysis_text || "Loading analysis..."}
-              </Typography>
-            )}
-          </Box>
-
-          {/* Tabs */}
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={activeTab}
-              onChange={(_, newValue) => setActiveTab(newValue)}
-              sx={{
-                "& .MuiTab-root": {
-                  textTransform: "none",
-                  fontSize: "1rem",
-                  fontWeight: 600,
-                  color: "text.secondary",
-                },
-                "& .Mui-selected": {
-                  color: "primary.main",
-                },
-              }}
-            >
-              <Tab label="Suggested" />
-              <Tab label="Saved" />
-            </Tabs>
-          </Box>
-
-          {/* Activity Cards */}
-          {activeTab === 0 && (
+          <Stack spacing={4}>
+            {/* Header */}
             <Box>
-              {/* Skill Filter */}
-              {skillAnalysis?.personalized_suggestions.length ? (
-                <Box sx={{ mb: 3 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
-                    Filter by skills:
-                  </Typography>
-                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                    {getUniqueSkills(
-                      skillAnalysis.personalized_suggestions,
-                      skillAnalysis,
-                    ).map((skill) => (
-                      <Chip
-                        key={skill}
-                        label={skill}
-                        onClick={() => toggleSkillFilter(skill)}
-                        variant={
-                          skillFilter.includes(skill) ? "filled" : "outlined"
-                        }
-                        sx={{
-                          cursor: "pointer",
-                          ...(skillFilter.includes(skill)
-                            ? {
-                                bgcolor: "#67b587",
-                                color: "#fff",
-                                "&:hover": {
-                                  bgcolor: "#5a9a74",
-                                },
-                              }
-                            : {
-                                borderColor: "#d0d0d0",
-                                color: "text.primary",
-                                "&:hover": {
-                                  bgcolor: "rgba(103, 181, 135, 0.1)",
-                                },
-                              }),
-                        }}
-                      />
-                    ))}
-                  </Stack>
-                </Box>
-              ) : null}
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ mb: 1.5 }}
+              >
+                <Typography sx={{ fontSize: 32 }}>🌱</Typography>
+                <Typography
+                  variant="h5"
+                  fontWeight={700}
+                  color="#2d3748"
+                  sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
+                >
+                  Some ideas for {selectedChild.name}
+                </Typography>
+              </Stack>
+              {error ? (
+                <Typography variant="body1" color="error">
+                  {error}
+                </Typography>
+              ) : (
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  fontSize="1rem"
+                >
+                  {skillAnalysis?.analysis_text || "Loading analysis..."}
+                </Typography>
+              )}
+            </Box>
 
-              <Grid container spacing={3}>
+            {/* Tabs */}
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Tabs
+                value={activeTab}
+                onChange={(_, newValue) => setActiveTab(newValue)}
+                sx={{
+                  "& .MuiTab-root": {
+                    textTransform: "none",
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    color: "text.secondary",
+                  },
+                  "& .Mui-selected": {
+                    color: "primary.main",
+                  },
+                }}
+              >
+                <Tab label="Suggested" />
+                <Tab label="Saved" />
+              </Tabs>
+            </Box>
+
+            {/* Activity Cards */}
+            {activeTab === 0 && (
+              <Box>
+                {/* Skill Filter */}
                 {skillAnalysis?.personalized_suggestions.length ? (
-                  filterSuggestionsBySkill(
-                    sortSuggestionsByPriority(
-                      skillAnalysis.personalized_suggestions,
-                    ),
-                  ).length > 0 ? (
+                  <Box sx={{ mb: 3 }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 1 }}
+                    >
+                      Filter by skills:
+                    </Typography>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      flexWrap="wrap"
+                      useFlexGap
+                    >
+                      {getUniqueSkills(
+                        skillAnalysis.personalized_suggestions,
+                        skillAnalysis,
+                      ).map((skill) => (
+                        <Chip
+                          key={skill}
+                          label={skill}
+                          onClick={() => toggleSkillFilter(skill)}
+                          variant={
+                            skillFilter.includes(skill) ? "filled" : "outlined"
+                          }
+                          sx={{
+                            cursor: "pointer",
+                            ...(skillFilter.includes(skill)
+                              ? {
+                                  bgcolor: "#67b587",
+                                  color: "#fff",
+                                  "&:hover": {
+                                    bgcolor: "#5a9a74",
+                                  },
+                                }
+                              : {
+                                  borderColor: "#d0d0d0",
+                                  color: "text.primary",
+                                  "&:hover": {
+                                    bgcolor: "rgba(103, 181, 135, 0.1)",
+                                  },
+                                }),
+                          }}
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+                ) : null}
+
+                <Grid container spacing={3}>
+                  {skillAnalysis?.personalized_suggestions.length ? (
                     filterSuggestionsBySkill(
                       sortSuggestionsByPriority(
                         skillAnalysis.personalized_suggestions,
                       ),
-                    ).map((suggestion) => (
-                      <Grid size={{ xs: 12, md: 4 }} key={suggestion.id}>
-                        <Card
-                          sx={{
-                            borderRadius: 2,
-                            height: "100%",
-                            display: "flex",
-                            flexDirection: "column",
-                          }}
-                        >
-                          <CardContent sx={{ p: 3, flexGrow: 1 }}>
-                            <Stack spacing={2}>
-                              <Typography
-                                variant="h6"
-                                fontWeight={700}
-                                color="#2d3748"
-                              >
-                                {suggestion.title}
-                              </Typography>
-
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {suggestion.description}
-                              </Typography>
-
-                              <Chip
-                                label={suggestion.skill_name}
-                                size="small"
-                                sx={{
-                                  bgcolor: "#67b587",
-                                  color: "#fff",
-                                  fontWeight: 600,
-                                  fontSize: "0.75rem",
-                                  alignSelf: "flex-start",
-                                }}
-                              />
-
-                              <Stack
-                                direction="row"
-                                spacing={0.5}
-                                alignItems="center"
-                              >
-                                <AccessTimeIcon
-                                  sx={{ fontSize: 16, color: "text.secondary" }}
-                                />
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  Ages {suggestion.duration_range}
-                                </Typography>
-                              </Stack>
-
-                              <Stack
-                                direction="row"
-                                spacing={1.5}
-                                sx={{ mt: 2 }}
-                              >
-                                <Button
-                                  variant={
-                                    isSuggestionSaved(suggestion.id)
-                                      ? "contained"
-                                      : "outlined"
-                                  }
-                                  startIcon={<BookmarkBorderIcon />}
-                                  onClick={() => saveSuggestion(suggestion)}
-                                  disabled={isSuggestionSaved(suggestion.id)}
-                                  sx={{
-                                    flex: 1,
-                                    textTransform: "none",
-                                    fontWeight: 600,
-                                    ...(isSuggestionSaved(suggestion.id)
-                                      ? {
-                                          bgcolor: "#67b587",
-                                          color: "#fff",
-                                          "&:hover": {
-                                            bgcolor: "#5a9a74",
-                                          },
-                                        }
-                                      : {
-                                          borderColor: "#d0d0d0",
-                                          color: "text.primary",
-                                          "&:hover": {
-                                            borderColor: "#a0a0a0",
-                                            bgcolor: "rgba(0, 0, 0, 0.02)",
-                                          },
-                                        }),
-                                  }}
-                                >
-                                  {isSuggestionSaved(suggestion.id)
-                                    ? "Saved"
-                                    : "Save for Later"}
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  onClick={() => {
-                                    onOpenActivityModal?.({
-                                      title: suggestion.title,
-                                      description: suggestion.description,
-                                    });
-                                  }}
-                                  sx={{
-                                    flex: 1,
-                                    textTransform: "none",
-                                    fontWeight: 600,
-                                    bgcolor: "#67b587",
-                                    "&:hover": {
-                                      bgcolor: "#5a9a74",
-                                    },
-                                  }}
-                                >
-                                  Log Activity
-                                </Button>
-                              </Stack>
-                            </Stack>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))
-                  ) : (
-                    <Grid size={12}>
-                      <Box sx={{ py: 8, textAlign: "center" }}>
-                        <Typography variant="h6" color="text.secondary">
-                          No suggestions found for the selected skills. Try
-                          selecting different skill categories or clear the
-                          filters.
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  )
-                ) : (
-                  <Grid size={12}>
-                    <Box sx={{ py: 8, textAlign: "center" }}>
-                      <Typography variant="h6" color="text.secondary">
-                        {skillAnalysis?.total_recent_activities === 0
-                          ? "No recent activities found. Add some activities to get personalized suggestions!"
-                          : "Great job covering all skill areas recently! Keep up the balanced learning."}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                )}
-              </Grid>
-            </Box>
-          )}
-
-          {activeTab === 1 && (
-            <Box>
-              {/* Skill Filter for Saved */}
-              {savedSuggestions.length > 0 && (
-                <Box sx={{ mb: 3 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
-                    Filter by skills:
-                  </Typography>
-                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                    {getUniqueSkills(savedSuggestions, null).map((skill) => (
-                      <Chip
-                        key={skill}
-                        label={skill}
-                        onClick={() => toggleSkillFilter(skill)}
-                        variant={
-                          skillFilter.includes(skill) ? "filled" : "outlined"
-                        }
-                        sx={{
-                          cursor: "pointer",
-                          ...(skillFilter.includes(skill)
-                            ? {
-                                bgcolor: "#67b587",
-                                color: "#fff",
-                                "&:hover": {
-                                  bgcolor: "#5a9a74",
-                                },
-                              }
-                            : {
-                                borderColor: "#d0d0d0",
-                                color: "text.primary",
-                                "&:hover": {
-                                  bgcolor: "rgba(103, 181, 135, 0.1)",
-                                },
-                              }),
-                        }}
-                      />
-                    ))}
-                  </Stack>
-                </Box>
-              )}
-
-              <Grid container spacing={3}>
-                {savedSuggestions.length > 0 ? (
-                  filterSuggestionsBySkill(savedSuggestions).length > 0 ? (
-                    filterSuggestionsBySkill(savedSuggestions).map(
-                      (suggestion) => (
+                    ).length > 0 ? (
+                      filterSuggestionsBySkill(
+                        sortSuggestionsByPriority(
+                          skillAnalysis.personalized_suggestions,
+                        ),
+                      ).map((suggestion) => (
                         <Grid size={{ xs: 12, md: 4 }} key={suggestion.id}>
                           <Card
                             sx={{
@@ -614,18 +423,39 @@ export function SuggestionsPage({
                                   sx={{ mt: 2 }}
                                 >
                                   <Button
-                                    variant="outlined"
-                                    color="error"
-                                    onClick={() =>
-                                      removeSuggestion(suggestion.id)
+                                    variant={
+                                      isSuggestionSaved(suggestion.id)
+                                        ? "contained"
+                                        : "outlined"
                                     }
+                                    startIcon={<BookmarkBorderIcon />}
+                                    onClick={() => saveSuggestion(suggestion)}
+                                    disabled={isSuggestionSaved(suggestion.id)}
                                     sx={{
                                       flex: 1,
                                       textTransform: "none",
                                       fontWeight: 600,
+                                      ...(isSuggestionSaved(suggestion.id)
+                                        ? {
+                                            bgcolor: "#67b587",
+                                            color: "#fff",
+                                            "&:hover": {
+                                              bgcolor: "#5a9a74",
+                                            },
+                                          }
+                                        : {
+                                            borderColor: "#d0d0d0",
+                                            color: "text.primary",
+                                            "&:hover": {
+                                              borderColor: "#a0a0a0",
+                                              bgcolor: "rgba(0, 0, 0, 0.02)",
+                                            },
+                                          }),
                                     }}
                                   >
-                                    Remove
+                                    {isSuggestionSaved(suggestion.id)
+                                      ? "Saved"
+                                      : "Save for Later"}
                                   </Button>
                                   <Button
                                     variant="contained"
@@ -652,70 +482,253 @@ export function SuggestionsPage({
                             </CardContent>
                           </Card>
                         </Grid>
-                      ),
+                      ))
+                    ) : (
+                      <Grid size={12}>
+                        <Box sx={{ py: 8, textAlign: "center" }}>
+                          <Typography variant="h6" color="text.secondary">
+                            No suggestions found for the selected skills. Try
+                            selecting different skill categories or clear the
+                            filters.
+                          </Typography>
+                        </Box>
+                      </Grid>
                     )
                   ) : (
                     <Grid size={12}>
                       <Box sx={{ py: 8, textAlign: "center" }}>
                         <Typography variant="h6" color="text.secondary">
-                          No saved suggestions found for the selected skills.
-                          Try selecting different skill categories or clear the
-                          filters.
+                          {skillAnalysis?.total_recent_activities === 0
+                            ? "No recent activities found. Add some activities to get personalized suggestions!"
+                            : "Great job covering all skill areas recently! Keep up the balanced learning."}
                         </Typography>
                       </Box>
                     </Grid>
-                  )
-                ) : (
-                  <Grid size={12}>
-                    <Box sx={{ py: 8, textAlign: "center" }}>
-                      <Typography variant="h6" color="text.secondary">
-                        No saved activities yet. Click "Save for Later" on any
-                        suggestion to see it here.
-                      </Typography>
-                    </Box>
-                  </Grid>
-                )}
-              </Grid>
-            </Box>
-          )}
+                  )}
+                </Grid>
+              </Box>
+            )}
 
-          {/* Quick & Simple Section */}
-          <Card sx={{ borderRadius: 2, bgcolor: "#fff9f0" }}>
-            <CardContent sx={{ p: 3 }}>
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                sx={{ mb: 2 }}
-              >
-                <Typography variant="h6" fontWeight={700} color="#2d3748">
-                  👋 Quick & Simple
-                </Typography>
-              </Stack>
-              <Stack spacing={1}>
-                {quickSimpleIdeas.map((idea, index) => (
-                  <Stack
-                    key={index}
-                    direction="row"
-                    spacing={1}
-                    alignItems="flex-start"
-                  >
+            {activeTab === 1 && (
+              <Box>
+                {/* Skill Filter for Saved */}
+                {savedSuggestions.length > 0 && (
+                  <Box sx={{ mb: 3 }}>
                     <Typography
                       variant="body2"
-                      color="primary"
-                      sx={{ mt: 0.25 }}
+                      color="text.secondary"
+                      sx={{ mb: 1 }}
                     >
-                      •
+                      Filter by skills:
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {idea}
-                    </Typography>
-                  </Stack>
-                ))}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Stack>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      flexWrap="wrap"
+                      useFlexGap
+                    >
+                      {getUniqueSkills(savedSuggestions, null).map((skill) => (
+                        <Chip
+                          key={skill}
+                          label={skill}
+                          onClick={() => toggleSkillFilter(skill)}
+                          variant={
+                            skillFilter.includes(skill) ? "filled" : "outlined"
+                          }
+                          sx={{
+                            cursor: "pointer",
+                            ...(skillFilter.includes(skill)
+                              ? {
+                                  bgcolor: "#67b587",
+                                  color: "#fff",
+                                  "&:hover": {
+                                    bgcolor: "#5a9a74",
+                                  },
+                                }
+                              : {
+                                  borderColor: "#d0d0d0",
+                                  color: "text.primary",
+                                  "&:hover": {
+                                    bgcolor: "rgba(103, 181, 135, 0.1)",
+                                  },
+                                }),
+                          }}
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+                )}
+
+                <Grid container spacing={3}>
+                  {savedSuggestions.length > 0 ? (
+                    filterSuggestionsBySkill(savedSuggestions).length > 0 ? (
+                      filterSuggestionsBySkill(savedSuggestions).map(
+                        (suggestion) => (
+                          <Grid size={{ xs: 12, md: 4 }} key={suggestion.id}>
+                            <Card
+                              sx={{
+                                borderRadius: 2,
+                                height: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <CardContent sx={{ p: 3, flexGrow: 1 }}>
+                                <Stack spacing={2}>
+                                  <Typography
+                                    variant="h6"
+                                    fontWeight={700}
+                                    color="#2d3748"
+                                  >
+                                    {suggestion.title}
+                                  </Typography>
+
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {suggestion.description}
+                                  </Typography>
+
+                                  <Chip
+                                    label={suggestion.skill_name}
+                                    size="small"
+                                    sx={{
+                                      bgcolor: "#67b587",
+                                      color: "#fff",
+                                      fontWeight: 600,
+                                      fontSize: "0.75rem",
+                                      alignSelf: "flex-start",
+                                    }}
+                                  />
+
+                                  <Stack
+                                    direction="row"
+                                    spacing={0.5}
+                                    alignItems="center"
+                                  >
+                                    <AccessTimeIcon
+                                      sx={{
+                                        fontSize: 16,
+                                        color: "text.secondary",
+                                      }}
+                                    />
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      Ages {suggestion.duration_range}
+                                    </Typography>
+                                  </Stack>
+
+                                  <Stack
+                                    direction="row"
+                                    spacing={1.5}
+                                    sx={{ mt: 2 }}
+                                  >
+                                    <Button
+                                      variant="outlined"
+                                      color="error"
+                                      onClick={() =>
+                                        removeSuggestion(suggestion.id)
+                                      }
+                                      sx={{
+                                        flex: 1,
+                                        textTransform: "none",
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      Remove
+                                    </Button>
+                                    <Button
+                                      variant="contained"
+                                      onClick={() => {
+                                        onOpenActivityModal?.({
+                                          title: suggestion.title,
+                                          description: suggestion.description,
+                                        });
+                                      }}
+                                      sx={{
+                                        flex: 1,
+                                        textTransform: "none",
+                                        fontWeight: 600,
+                                        bgcolor: "#67b587",
+                                        "&:hover": {
+                                          bgcolor: "#5a9a74",
+                                        },
+                                      }}
+                                    >
+                                      Log Activity
+                                    </Button>
+                                  </Stack>
+                                </Stack>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        ),
+                      )
+                    ) : (
+                      <Grid size={12}>
+                        <Box sx={{ py: 8, textAlign: "center" }}>
+                          <Typography variant="h6" color="text.secondary">
+                            No saved suggestions found for the selected skills.
+                            Try selecting different skill categories or clear
+                            the filters.
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )
+                  ) : (
+                    <Grid size={12}>
+                      <Box sx={{ py: 8, textAlign: "center" }}>
+                        <Typography variant="h6" color="text.secondary">
+                          No saved activities yet. Click "Save for Later" on any
+                          suggestion to see it here.
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  )}
+                </Grid>
+              </Box>
+            )}
+
+            {/* Quick & Simple Section */}
+            <Card sx={{ borderRadius: 2, bgcolor: "#fff9f0" }}>
+              <CardContent sx={{ p: 3 }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ mb: 2 }}
+                >
+                  <Typography variant="h6" fontWeight={700} color="#2d3748">
+                    👋 Quick & Simple
+                  </Typography>
+                </Stack>
+                <Stack spacing={1}>
+                  {quickSimpleIdeas.map((idea, index) => (
+                    <Stack
+                      key={index}
+                      direction="row"
+                      spacing={1}
+                      alignItems="flex-start"
+                    >
+                      <Typography
+                        variant="body2"
+                        color="primary"
+                        sx={{ mt: 0.25 }}
+                      >
+                        •
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {idea}
+                      </Typography>
+                    </Stack>
+                  ))}
+                </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
         </Box>
       </Container>
     </Box>
