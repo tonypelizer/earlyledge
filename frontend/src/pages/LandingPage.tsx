@@ -22,6 +22,7 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 import logoUrl from "../assets/logo.png";
+import heroLogoUrl from "../assets/earlyledge.png";
 
 type LandingPageProps = {
   onStartFree: () => void;
@@ -175,80 +176,105 @@ export function LandingPage({ onStartFree, onSignIn }: LandingPageProps) {
         sx={{
           pt: { xs: 8, md: 12 },
           pb: { xs: 8, md: 10 },
-          textAlign: "center",
         }}
       >
-        <Container maxWidth="md">
-          <NatureIcon
-            sx={{ color: "#67b587", fontSize: 48, mb: 3, opacity: 0.9 }}
-          />
-          <Typography
-            variant="h3"
-            fontWeight={700}
-            color="#2d3748"
-            sx={{
-              mb: 2,
-              fontSize: { xs: "2rem", md: "2.75rem" },
-              lineHeight: 1.2,
-            }}
-          >
-            See the learning in everyday life.
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{
-              mb: 5,
-              maxWidth: 520,
-              mx: "auto",
-              fontSize: { xs: "1rem", md: "1.125rem" },
-              lineHeight: 1.7,
-            }}
-          >
-            EarlyLedge helps parents of children ages 4–8 notice, track, and
-            understand everyday learning — without tests, scores, or pressure.
-            Just calm visibility into how your child grows.
-          </Typography>
+        <Container maxWidth="lg">
           <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            justifyContent="center"
+            direction={{ xs: "column", md: "row" }}
+            spacing={{ xs: 5, md: 8 }}
+            alignItems="center"
           >
-            <Button
-              variant="contained"
-              size="large"
-              onClick={onStartFree}
+            {/* Left — text */}
+            <Box sx={{ flex: 1, textAlign: { xs: "center", md: "left" } }}>
+              <Typography
+                variant="h3"
+                fontWeight={700}
+                color="#2d3748"
+                sx={{
+                  mb: 2,
+                  fontSize: { xs: "2rem", md: "2.75rem" },
+                  lineHeight: 1.2,
+                }}
+              >
+                See the learning in everyday life.
+              </Typography>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{
+                  mb: 5,
+                  maxWidth: 520,
+                  mx: { xs: "auto", md: 0 },
+                  fontSize: { xs: "1rem", md: "1.125rem" },
+                  lineHeight: 1.7,
+                }}
+              >
+                EarlyLedge helps parents of children ages 4–8 notice, track, and
+                understand everyday learning — without tests, scores, or
+                pressure. Just calm visibility into how your child grows.
+              </Typography>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                justifyContent={{ xs: "center", md: "flex-start" }}
+              >
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={onStartFree}
+                  sx={{
+                    bgcolor: "#67b587",
+                    "&:hover": { bgcolor: "#5a9a74" },
+                    fontWeight: 600,
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 2,
+                    fontSize: "1rem",
+                  }}
+                >
+                  Start Free — it takes 30 seconds
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={onSignIn}
+                  sx={{
+                    borderColor: "#c4cdd5",
+                    color: "#4a5568",
+                    fontWeight: 500,
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 2,
+                    "&:hover": {
+                      borderColor: "#a0aec0",
+                      bgcolor: "rgba(0,0,0,0.02)",
+                    },
+                  }}
+                >
+                  Sign in to your account
+                </Button>
+              </Stack>
+            </Box>
+
+            {/* Right — hero image */}
+            <Box
               sx={{
-                bgcolor: "#67b587",
-                "&:hover": { bgcolor: "#5a9a74" },
-                fontWeight: 600,
-                px: 4,
-                py: 1.5,
-                borderRadius: 2,
-                fontSize: "1rem",
+                flex: 1,
+                display: "flex",
+                justifyContent: "center",
               }}
             >
-              Start Free — it takes 30 seconds
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              onClick={onSignIn}
-              sx={{
-                borderColor: "#c4cdd5",
-                color: "#4a5568",
-                fontWeight: 500,
-                px: 4,
-                py: 1.5,
-                borderRadius: 2,
-                "&:hover": {
-                  borderColor: "#a0aec0",
-                  bgcolor: "rgba(0,0,0,0.02)",
-                },
-              }}
-            >
-              Sign in to your account
-            </Button>
+              <img
+                src={heroLogoUrl}
+                alt="EarlyLedge"
+                style={{
+                  maxWidth: "100%",
+                  height: "auto",
+                  maxHeight: 340,
+                  objectFit: "contain",
+                }}
+              />
+            </Box>
           </Stack>
         </Container>
       </Box>
