@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 
+from core.plans import PLAN_CHOICES, PLAN_FREE
+
 
 class User(AbstractUser):
 	username = None
@@ -102,3 +104,37 @@ class Reflection(models.Model):
 
 	def __str__(self) -> str:
 		return f"Reflection for {self.child.name} - Week of {self.week_start_date}"
+
+
+class Subscription(models.Model):
+	"""Tracks a user's subscription plan.
+
+	Every user has exactly one Subscription row (created automatically on
+	signup via a post_save signal or on first access via PlanService).
+	"""
+
+	user = models.OneToOneField(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name="subscription",
+	)
+	plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default=PLAN_FREE)
+	started_at = models.DateTimeField(default=timezone.now)
+	ends_at = models.DateTimeField(null=True, blank=True)
+	canceled_at = models.DateTimeField(null=True, blank=True)
+
+	# Future Stripe integration fields — nullable until payment is wired up.
+	provider = models.CharField(max_length=40, blank=True, default="")
+	provider_customer_id = models.CharField(max_length=255, blank=True, default="")
+	provider_subscription_id = models.CharField(max_length=255, blank=True, default="")
+
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self) -> str:
+		return f"{self.user.email} — {self.get_plan_display()}"
+
+	@property
+	def is_plus(self) -> bool:
+		from core.plans import PLAN_PLUS
+		return self.plan == PLAN_PLUS

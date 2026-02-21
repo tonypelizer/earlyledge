@@ -1,15 +1,24 @@
 from datetime import date, datetime, timedelta
 
+from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from weasyprint import HTML
 
 from core.models import Activity, Child, Reflection, SkillCategory, Suggestion
+from core.plan_service import (
+	can_add_child,
+	get_plan_info,
+	get_visibility_start,
+	set_user_plan,
+)
+from core.plans import PLAN_FREE, PLAN_PLUS
 from core.serializers import (
 	ActivitySerializer,
 	ChildSerializer,
@@ -19,6 +28,42 @@ from core.serializers import (
 	SuggestionSerializer,
 	build_skill_counts_for_child,
 )
+
+User = get_user_model()
+
+
+# ------------------------------------------------------------------
+# Plan endpoints
+# ------------------------------------------------------------------
+
+class MyPlanView(APIView):
+	"""GET /api/me/plan/ — return the authenticated user's plan info."""
+	permission_classes = [permissions.IsAuthenticated]
+
+	def get(self, request):
+		return Response(get_plan_info(request.user))
+
+
+class AdminSetPlanView(APIView):
+	"""POST /api/admin/set-plan/ — admin-only stub to set a user's plan.
+
+	Body: { "user_id": <int>, "plan": "free"|"plus" }
+	"""
+	permission_classes = [permissions.IsAdminUser]
+
+	def post(self, request):
+		user_id = request.data.get("user_id")
+		plan = request.data.get("plan")
+
+		if not user_id or plan not in (PLAN_FREE, PLAN_PLUS):
+			return Response(
+				{"detail": "user_id (int) and plan ('free'|'plus') are required."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		user = get_object_or_404(User, id=user_id)
+		sub = set_user_plan(user, plan)
+		return Response({"detail": f"User {user.email} is now on the {sub.get_plan_display()} plan."})
 
 
 class SignupView(generics.CreateAPIView):
@@ -34,6 +79,13 @@ class ChildViewSet(viewsets.ModelViewSet):
 		return Child.objects.filter(user=self.request.user)
 
 	def perform_create(self, serializer):
+		if not can_add_child(self.request.user):
+			plan_info = get_plan_info(self.request.user)
+			raise PermissionDenied(
+				f"Your {plan_info['plan'].title()} plan allows up to "
+				f"{plan_info['max_children']} child profile(s). "
+				f"Upgrade to Plus to add more."
+			)
 		serializer.save(user=self.request.user)
 
 
@@ -67,6 +119,11 @@ class WeeklyDashboardView(APIView):
 
 		today = date.today()
 		date_from = today - timedelta(days=6)
+
+		# Apply plan visibility window — clamp date_from if needed
+		vis_start = get_visibility_start(request.user)
+		if vis_start and date_from < vis_start:
+			date_from = vis_start
 
 		activities = child.activities.filter(activity_date__range=[date_from, today]).prefetch_related("skills")
 		activity_count = activities.count()
@@ -114,7 +171,10 @@ class SuggestionListView(generics.ListAPIView):
 				return queryset.none()
 			queryset = queryset.filter(min_age__lte=child.age, max_age__gte=child.age)
 
-		return queryset.order_by("?")[:3]
+		# Free plan: cap at 3 generic suggestions
+		plan_info = get_plan_info(self.request.user)
+		limit = 3 if not plan_info["is_plus"] else 6
+		return queryset.order_by("?")[:limit]
 
 
 class MonthlySnapshotPdfView(APIView):
@@ -126,6 +186,14 @@ class MonthlySnapshotPdfView(APIView):
 
 		if not child_id or not month_value:
 			return Response({"detail": "child_id and month are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+		# Plan gating: Free users can only generate PDFs within visibility window
+		plan_info = get_plan_info(request.user)
+		if not plan_info["printable_reports"]:
+			return Response(
+				{"detail": "Printable reports are available on the Plus plan. Upgrade to unlock this feature."},
+				status=status.HTTP_403_FORBIDDEN,
+			)
 
 		child = get_object_or_404(Child, id=child_id, user=request.user)
 		month_start = datetime.strptime(month_value, "%Y-%m").date().replace(day=1)
@@ -197,8 +265,11 @@ class SkillAnalysisView(APIView):
 
 		child = get_object_or_404(Child, id=child_id, user=request.user)
 		
-		# Analyze last 14 days of activities
+		# Analyze last 14 days of activities (clamped by plan visibility window)
 		two_weeks_ago = date.today() - timedelta(days=14)
+		vis_start = get_visibility_start(request.user)
+		if vis_start and two_weeks_ago < vis_start:
+			two_weeks_ago = vis_start
 		
 		# Get all skills and their usage in the last 2 weeks
 		all_skills = SkillCategory.objects.all()
@@ -332,6 +403,11 @@ class ReportsView(APIView):
 		else:
 			start_date = today - timedelta(days=90)  # default
 		
+		# Apply plan visibility window — clamp start_date for Free users
+		vis_start = get_visibility_start(request.user)
+		if vis_start and start_date < vis_start:
+			start_date = vis_start
+		
 		# Get activities in range
 		activities = Activity.objects.filter(
 			child=child,
@@ -401,7 +477,9 @@ class ReportsView(APIView):
 			"skill_distribution": sorted_skills,
 			"growth_highlights": growth_highlights,
 			"monthly_data": monthly_data,
-			"time_range": time_range
+			"time_range": time_range,
+			"visibility_limited": vis_start is not None,
+			"visibility_start": str(vis_start) if vis_start else None,
 		})
 
 

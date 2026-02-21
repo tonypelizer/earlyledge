@@ -27,12 +27,15 @@ import {
 
 import { api } from "../api";
 import { useSnackbar } from "../context/SnackbarContext";
+import { UpgradeBanner } from "../components/UpgradeBanner";
 import type { Child } from "../types";
 
 type TimeRange = "last30days" | "last3months" | "thisyear" | "custom";
 
 type ReportsPageProps = {
   selectedChild?: Child;
+  isPlus?: boolean;
+  onNavigateToPricing?: () => void;
 };
 
 type ReportsData = {
@@ -44,6 +47,8 @@ type ReportsData = {
   growth_highlights: string[];
   monthly_data: { month: string; [skill: string]: number | string }[];
   time_range: string;
+  visibility_limited: boolean;
+  visibility_start: string | null;
 };
 
 const skillColors: { [key: string]: string } = {
@@ -56,7 +61,11 @@ const skillColors: { [key: string]: string } = {
   "Critical Thinking": "#9c88c4",
 };
 
-export function ReportsPage({ selectedChild }: ReportsPageProps) {
+export function ReportsPage({
+  selectedChild,
+  isPlus = false,
+  onNavigateToPricing,
+}: ReportsPageProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>("last3months");
   const [month, setMonth] = useState(dayjs().format("YYYY-MM"));
   const [isGenerating, setIsGenerating] = useState(false);
@@ -191,10 +200,29 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
               >
                 <Tab label="Last 30 Days" value="last30days" />
                 <Tab label="Last 3 Months" value="last3months" />
-                <Tab label="This Year" value="thisyear" />
-                <Tab label="Custom" value="custom" />
+                <Tab
+                  label={isPlus ? "This Year" : "This Year 🔒"}
+                  value="thisyear"
+                  disabled={!isPlus}
+                />
+                <Tab
+                  label={isPlus ? "Custom" : "Custom 🔒"}
+                  value="custom"
+                  disabled={!isPlus}
+                />
               </Tabs>
             </Box>
+
+            {/* Visibility notice for Free users */}
+            {!isPlus && reportsData?.visibility_limited && (
+              <UpgradeBanner
+                message="You're viewing the last 90 days."
+                description="Upgrade to Plus to unlock your child's full learning story — all-time charts, long-term trends, and printable reports."
+                onUpgrade={onNavigateToPricing}
+                ctaLabel="See Plus plan"
+                compact
+              />
+            )}
 
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, lg: 8 }}>
@@ -517,7 +545,7 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                           variant="contained"
                           startIcon={<FileDownloadIcon />}
                           onClick={downloadSnapshot}
-                          disabled={!selectedChild || isGenerating}
+                          disabled={!selectedChild || isGenerating || !isPlus}
                           sx={{
                             py: 1.5,
                             fontWeight: 600,
@@ -527,7 +555,9 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
                         >
                           {isGenerating
                             ? "Generating..."
-                            : "Download PDF Snapshot"}
+                            : isPlus
+                              ? "Download PDF Snapshot"
+                              : "PDF Reports — Plus only"}
                         </Button>
 
                         <Typography

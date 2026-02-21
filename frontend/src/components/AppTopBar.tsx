@@ -28,6 +28,7 @@ import ChildCareIcon from "@mui/icons-material/ChildCare";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 import logoUrl from "../assets/logo.png";
 
@@ -80,6 +81,7 @@ export function AppTopBar({
     { page: "reports", label: "Reports", icon: <AssessmentIcon /> },
     { page: "activities", label: "All Activities", icon: <ListAltIcon /> },
     { page: "children", label: "Children", icon: <ChildCareIcon /> },
+    { page: "pricing", label: "Pricing", icon: <AutoAwesomeIcon /> },
   ];
 
   return (
@@ -186,6 +188,24 @@ export function AppTopBar({
                 }
               >
                 Reports
+              </Link>
+              <Link
+                href="#"
+                onClick={handleNavClick("pricing")}
+                underline={currentPage === "pricing" ? "always" : "none"}
+                color={currentPage === "pricing" ? "primary" : "text.secondary"}
+                fontWeight={currentPage === "pricing" ? 600 : 500}
+                fontSize="0.9375rem"
+                sx={
+                  currentPage === "pricing"
+                    ? {
+                        textDecorationThickness: "2.5px",
+                        textUnderlineOffset: "6px",
+                      }
+                    : undefined
+                }
+              >
+                Pricing
               </Link>
             </Stack>
           )}

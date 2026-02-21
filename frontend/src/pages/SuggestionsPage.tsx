@@ -18,6 +18,7 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 import { api } from "../api";
 import { useSnackbar } from "../context/SnackbarContext";
+import { UpgradeBanner } from "../components/UpgradeBanner";
 import type { Child } from "../types";
 
 type PersonalizedSuggestion = {
@@ -42,6 +43,8 @@ type SuggestionsPageProps = {
     title: string;
     description: string;
   }) => void;
+  isPlus?: boolean;
+  onNavigateToPricing?: () => void;
 };
 
 const quickSimpleIdeas = [
@@ -53,6 +56,8 @@ const quickSimpleIdeas = [
 export function SuggestionsPage({
   selectedChild,
   onOpenActivityModal,
+  isPlus = false,
+  onNavigateToPricing,
 }: SuggestionsPageProps) {
   const [activeTab, setActiveTab] = useState(0);
   const [skillAnalysis, setSkillAnalysis] = useState<SkillAnalysis | null>(
@@ -262,6 +267,17 @@ export function SuggestionsPage({
                 {skillAnalysis?.analysis_text || "Loading analysis..."}
               </Typography>
             </Box>
+
+            {/* Free plan notice */}
+            {!isPlus && (
+              <UpgradeBanner
+                message="You're seeing a curated set of suggestions."
+                description="Upgrade to Plus for unlimited, personalized suggestions based on your child's unique learning patterns."
+                onUpgrade={onNavigateToPricing}
+                ctaLabel="Learn about Plus"
+                compact
+              />
+            )}
 
             {/* Tabs */}
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

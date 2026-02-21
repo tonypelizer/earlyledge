@@ -25,6 +25,7 @@ type ChildrenPanelProps = {
   onUpdateChild: () => void;
   onCancelEdit: () => void;
   onDeleteChild: () => void;
+  disableAdd?: boolean;
 };
 
 export function ChildrenPanel({
@@ -41,6 +42,7 @@ export function ChildrenPanel({
   onUpdateChild,
   onCancelEdit,
   onDeleteChild,
+  disableAdd = false,
 }: ChildrenPanelProps) {
   const hasSelectedChild = selectedChildId !== "";
 
@@ -102,7 +104,11 @@ export function ChildrenPanel({
               </Button>
             </Stack>
           ) : (
-            <Button variant="contained" onClick={onAddChild}>
+            <Button
+              variant="contained"
+              onClick={onAddChild}
+              disabled={disableAdd}
+            >
               Add child
             </Button>
           )}
