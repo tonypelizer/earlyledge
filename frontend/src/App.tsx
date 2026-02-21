@@ -96,7 +96,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { isPlus, maxChildren, visibilityDays, refetchPlan } = usePlan();
+  const { isPlus, maxChildren, refetchPlan } = usePlan();
 
   const selectedChild = useMemo(
     () => children.find((child) => child.id === selectedChildId),
