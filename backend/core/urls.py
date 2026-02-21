@@ -3,8 +3,10 @@ from rest_framework.routers import DefaultRouter
 
 from core.views import (
     ActivityViewSet,
+    AdminSetPlanView,
     ChildViewSet,
     MonthlySnapshotPdfView,
+	MyPlanView,
 	ReflectionViewSet,
 	ReportsView,
     SignupView,
@@ -27,6 +29,9 @@ urlpatterns = [
     path("skill-analysis/", SkillAnalysisView.as_view(), name="skill-analysis"),
     path("reports/", ReportsView.as_view(), name="reports"),
     path("reports/monthly/", MonthlySnapshotPdfView.as_view(), name="monthly-report"),
+    # Plan endpoints
+    path("me/plan/", MyPlanView.as_view(), name="my-plan"),
+    path("admin/set-plan/", AdminSetPlanView.as_view(), name="admin-set-plan"),
 ]
 
 urlpatterns += router.urls

@@ -33,6 +33,8 @@ import { SuggestionsPage } from "./pages/SuggestionsPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { ChildrenPage } from "./pages/ChildrenPage";
 import { ActivitiesPage } from "./pages/ActivitiesPage";
+import { PricingPage } from "./pages/PricingPage";
+import { usePlan } from "./hooks/usePlan";
 import type {
   Activity,
   Child,
@@ -42,7 +44,13 @@ import type {
 } from "./types";
 
 type AuthMode = "login" | "signup";
-type PageType = "home" | "suggestions" | "reports" | "children" | "activities";
+type PageType =
+  | "home"
+  | "suggestions"
+  | "reports"
+  | "children"
+  | "activities"
+  | "pricing";
 
 function App() {
   const theme = useTheme();
@@ -88,6 +96,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { isPlus, maxChildren, visibilityDays, refetchPlan } = usePlan();
+
   const selectedChild = useMemo(
     () => children.find((child) => child.id === selectedChildId),
     [children, selectedChildId],
@@ -115,6 +125,7 @@ function App() {
       const loadedChildren = childrenRes.data as Child[];
       setChildren(loadedChildren);
       setSkills(skillsRes.data);
+      await refetchPlan();
       if (loadedChildren.length > 0) {
         const firstChildId = loadedChildren[0].id;
         setSelectedChildId(firstChildId);
@@ -511,9 +522,20 @@ function App() {
         <SuggestionsPage
           selectedChild={selectedChild}
           onOpenActivityModal={openAddActivityModal}
+          isPlus={isPlus}
+          onNavigateToPricing={() => setCurrentPage("pricing")}
         />
       ) : currentPage === "reports" ? (
-        <ReportsPage selectedChild={selectedChild} />
+        <ReportsPage
+          selectedChild={selectedChild}
+          isPlus={isPlus}
+          onNavigateToPricing={() => setCurrentPage("pricing")}
+        />
+      ) : currentPage === "pricing" ? (
+        <PricingPage
+          isPlus={isPlus}
+          onNavigate={(page) => setCurrentPage(page as PageType)}
+        />
       ) : currentPage === "children" ? (
         <ChildrenPage
           children={children}
@@ -529,6 +551,10 @@ function App() {
           onUpdateChild={updateChild}
           onCancelEdit={cancelEditChild}
           onDeleteChild={deleteChild}
+          isPlus={isPlus}
+          maxChildren={maxChildren}
+          childCount={children.length}
+          onNavigateToPricing={() => setCurrentPage("pricing")}
         />
       ) : currentPage === "activities" ? (
         <ActivitiesPage selectedChild={selectedChild} />

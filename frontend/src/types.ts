@@ -44,3 +44,16 @@ export type Suggestion = {
   min_age: number;
   max_age: number;
 };
+
+export type PlanInfo = {
+  plan: "free" | "plus";
+  is_plus: boolean;
+  max_children: number;
+  visibility_days: number | null;
+  personalized_suggestions: boolean;
+  printable_reports: boolean;
+  long_term_trends: boolean;
+  started_at: string | null;
+  ends_at: string | null;
+  upgrade_url: string;
+};
