@@ -236,10 +236,8 @@ export function SuggestionsPage({
 
   return (
     <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}>
-      <Container
-        maxWidth="xl"
-        sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
-      >
+      <Container maxWidth="xl">
+        <Box sx={{ px: { xs: 1, md: 2 }, pt: { xs: 2, md: 3 } }}>
         <Stack spacing={4}>
           {/* Header */}
           <Box>
@@ -718,6 +716,7 @@ export function SuggestionsPage({
             </CardContent>
           </Card>
         </Stack>
+        </Box>
       </Container>
     </Box>
   );

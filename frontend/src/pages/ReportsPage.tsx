@@ -148,10 +148,8 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
 
   return (
     <Box sx={{ bgcolor: "#faf5f2", minHeight: "100vh", pb: { xs: 2, md: 3 } }}>
-      <Container
-        maxWidth="xl"
-        sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}
-      >
+      <Container maxWidth="xl">
+        <Box sx={{ px: { xs: 1, md: 2 }, pt: { xs: 2, md: 3 } }}>
         <Stack spacing={4}>
           {error && (
             <Alert severity="error" onClose={() => setError("")}>
@@ -598,6 +596,7 @@ export function ReportsPage({ selectedChild }: ReportsPageProps) {
             </Grid>
           </Grid>
         </Stack>
+        </Box>
       </Container>
     </Box>
   );
