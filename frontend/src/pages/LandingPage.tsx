@@ -27,6 +27,9 @@ import heroLogoUrl from "../assets/earlyledge.png";
 type LandingPageProps = {
   onStartFree: () => void;
   onSignIn: () => void;
+  onNavigateToAbout?: () => void;
+  onNavigateToPrivacy?: () => void;
+  onNavigateToTerms?: () => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -101,7 +104,13 @@ function FeatureItem({
 // Main component
 // ---------------------------------------------------------------------------
 
-export function LandingPage({ onStartFree, onSignIn }: LandingPageProps) {
+export function LandingPage({
+  onStartFree,
+  onSignIn,
+  onNavigateToAbout,
+  onNavigateToPrivacy,
+  onNavigateToTerms,
+}: LandingPageProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -746,26 +755,32 @@ export function LandingPage({ onStartFree, onSignIn }: LandingPageProps) {
 
             <Stack direction="row" spacing={3}>
               <Link
-                href="#"
+                component="button"
+                onClick={onNavigateToAbout}
                 underline="hover"
                 color="text.secondary"
                 variant="body2"
+                sx={{ cursor: "pointer" }}
               >
                 About
               </Link>
               <Link
-                href="#"
+                component="button"
+                onClick={onNavigateToPrivacy}
                 underline="hover"
                 color="text.secondary"
                 variant="body2"
+                sx={{ cursor: "pointer" }}
               >
                 Privacy
               </Link>
               <Link
-                href="#"
+                component="button"
+                onClick={onNavigateToTerms}
                 underline="hover"
                 color="text.secondary"
                 variant="body2"
+                sx={{ cursor: "pointer" }}
               >
                 Terms
               </Link>

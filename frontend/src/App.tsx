@@ -36,6 +36,9 @@ import { ActivitiesPage } from "./pages/ActivitiesPage";
 import { LandingPage } from "./pages/LandingPage";
 import { PricingPage } from "./pages/PricingPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { AboutPage } from "./pages/AboutPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { TermsPage } from "./pages/TermsPage";
 import { usePlan } from "./hooks/usePlan";
 import type {
   Activity,
@@ -53,7 +56,10 @@ type PageType =
   | "children"
   | "activities"
   | "pricing"
-  | "settings";
+  | "settings"
+  | "about"
+  | "privacy"
+  | "terms";
 
 function App() {
   const theme = useTheme();
@@ -516,6 +522,66 @@ function App() {
       );
     }
 
+    // About page
+    if (currentPage === "about") {
+      return (
+        <AboutPage
+          onBack={() => {
+            setCurrentPage("home");
+            window.scrollTo(0, 0);
+          }}
+          onStartFree={() => {
+            setMode("signup");
+            setShowAuth(true);
+          }}
+          onSignIn={() => {
+            setMode("login");
+            setShowAuth(true);
+          }}
+        />
+      );
+    }
+
+    // Privacy page
+    if (currentPage === "privacy") {
+      return (
+        <PrivacyPage
+          onBack={() => {
+            setCurrentPage("home");
+            window.scrollTo(0, 0);
+          }}
+          onStartFree={() => {
+            setMode("signup");
+            setShowAuth(true);
+          }}
+          onSignIn={() => {
+            setMode("login");
+            setShowAuth(true);
+          }}
+        />
+      );
+    }
+
+    // Terms page
+    if (currentPage === "terms") {
+      return (
+        <TermsPage
+          onBack={() => {
+            setCurrentPage("home");
+            window.scrollTo(0, 0);
+          }}
+          onStartFree={() => {
+            setMode("signup");
+            setShowAuth(true);
+          }}
+          onSignIn={() => {
+            setMode("login");
+            setShowAuth(true);
+          }}
+        />
+      );
+    }
+
     // Marketing landing page
     return (
       <LandingPage
@@ -526,6 +592,18 @@ function App() {
         onSignIn={() => {
           setMode("login");
           setShowAuth(true);
+        }}
+        onNavigateToAbout={() => {
+          setCurrentPage("about");
+          window.scrollTo(0, 0);
+        }}
+        onNavigateToPrivacy={() => {
+          setCurrentPage("privacy");
+          window.scrollTo(0, 0);
+        }}
+        onNavigateToTerms={() => {
+          setCurrentPage("terms");
+          window.scrollTo(0, 0);
         }}
       />
     );
